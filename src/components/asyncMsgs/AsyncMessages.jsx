@@ -1,5 +1,14 @@
 import React, { useState } from "react";
-import { Card, Row, Col, Input, Button, DatePicker, Dropdown, Menu } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Input,
+  Button,
+  DatePicker,
+  Dropdown,
+  Menu,
+} from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import "./AsyncMessages.css"; // Import your custom CSS file for component styling
 
@@ -18,7 +27,6 @@ const AsyncMessages = () => {
       <Menu.Item key="5">Revise</Menu.Item>
       <Menu.Item key="6">Migrate out</Menu.Item>
       <Menu.Item key="7">New Delay</Menu.Item>
-   
     </Menu>
   );
   return (
@@ -62,12 +70,11 @@ const AsyncMessages = () => {
                 </Row>
               </Card>
               <Card bordered={false} className="async-inner-card">
-              <Row gutter={[16, 16]}>
+                <Row gutter={[16, 16]}>
                   <Col xs={24} sm={12} md={8} lg={5}>
                     <h5>Select Order Type:</h5>
                   </Col>
                   <Col xs={24} sm={12} md={8} lg={6}>
-
                     <Dropdown overlay={menu}>
                       <Button className="ordertype-dropdown">
                         {selectedVersion}
@@ -77,20 +84,20 @@ const AsyncMessages = () => {
                   </Col>
                 </Row>
                 <Row gutter={[24, 24]} className="async-date-button-row">
-                <Col xs={24} sm={12} md={8} lg={6} className="async-col">
+                  <Col xs={24} sm={12} md={8} lg={6} className="async-col">
                     <DatePicker className="datefield" />
-                </Col>
-                <Col xs={24} sm={12} md={8} lg={6} className="async-col">
-                <Button type="primary" className="async-triggers-button">
-                  NEW_SA
-                  </Button>
-                </Col>
-                <Col xs={24} sm={12} md={8} lg={6} className="async-col">
-                <Button type="primary" className="async-triggers-button">
-                 NEW_RFS
-                </Button>
-                </Col>
-              </Row>
+                  </Col>
+                  <Col xs={24} sm={12} md={8} lg={6} className="async-col">
+                    <Button type="primary" className="async-triggers-button">
+                      NEW_SA
+                    </Button>
+                  </Col>
+                  <Col xs={24} sm={12} md={8} lg={6} className="async-col">
+                    <Button type="primary" className="async-triggers-button">
+                      NEW_RFS
+                    </Button>
+                  </Col>
+                </Row>
               </Card>
             </Card>
           </Col>

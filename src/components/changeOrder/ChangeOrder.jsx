@@ -28,9 +28,7 @@ const ChangeOrder = () => {
           </Row>
         </div>
 
-        
-      <Row gutter={[24, 24]}>
-     
+        <Row gutter={[24, 24]}>
           <Radio.Group
             onChange={handleRadioChange}
             value={selectedRadio}
@@ -47,8 +45,7 @@ const ChangeOrder = () => {
               </Radio>
             </Col>
           </Radio.Group>
-     
-      </Row>
+        </Row>
       </div>
     </Card>
   );

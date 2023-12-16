@@ -1,14 +1,14 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
-import Tabs from '@mui/material/Tabs';
-import Tab from '@mui/material/Tab';
-import Typography from '@mui/material/Typography';
-import Box from '@mui/material/Box';
-import ServiceOrdering from '../serviceOrdering/ServiceOrdering';
-import Feasibility from '../feasibility/Feasibility';
-import AsyncMessages from '../asyncMsgs/AsyncMessages';
-import ChangeOrder from '../changeOrder/ChangeOrder';
-import { ServiceCharacterstics } from '../serviceOrdering/serviceCharacterstics';
+import * as React from "react";
+import PropTypes from "prop-types";
+import Tabs from "@mui/material/Tabs";
+import Tab from "@mui/material/Tab";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+import ServiceOrdering from "../serviceOrdering/ServiceOrdering";
+import Feasibility from "../feasibility/Feasibility";
+import AsyncMessages from "../asyncMsgs/AsyncMessages";
+import ChangeOrder from "../changeOrder/ChangeOrder";
+import { ServiceCharacterstics } from "../serviceOrdering/serviceCharacterstics";
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -39,21 +39,25 @@ CustomTabPanel.propTypes = {
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
+    "aria-controls": `simple-tabpanel-${index}`,
   };
 }
 
 const TabBar = () => {
-    const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+    <Box sx={{ width: "100%" }}>
+      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          aria-label="basic tabs example"
+        >
           <Tab label="Feasibility Check" {...a11yProps(0)} />
           <Tab label="Service Ordering" {...a11yProps(1)} />
           <Tab label="Async Messages" {...a11yProps(2)} />
@@ -74,6 +78,6 @@ const TabBar = () => {
       </CustomTabPanel>
     </Box>
   );
-}
+};
 
-export default TabBar
+export default TabBar;
