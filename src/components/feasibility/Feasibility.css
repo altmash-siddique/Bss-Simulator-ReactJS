@@ -1,0 +1,61 @@
+.card-label {
+    font-size: 50px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 85px;
+    margin-left: 55px;
+    font-weight: bold;
+  }
+  .card-style {
+    height: 120vh; /* Removed quotes around the value */
+    background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
+    display: flex;
+    color: white; /* Removed quotes around the value */
+  }
+
+  .subheader-label{
+    margin-left: 55px;
+  }
+
+  .postcode-textbox-row{
+    margin-left: 55px;
+  }
+
+  .textbox-style {
+    height: 60px;
+  }
+
+  .proceed-button {
+    color: #fff;
+    background-color: black;
+    border: 1px solid #000;
+    border-radius: 30px;
+    width: 100%;
+    height: 60px !important;
+  }
+
+  .fetch-checkbox{
+    margin-left: 55px;
+    color: white;
+    margin-top: 10px;
+  }
+  .version-dropdown-style{
+    position: absolute;
+    top: 20px; 
+    right: 50px;
+  }
+  .version-label {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+
+
+  @media (max-width: 767px) {
+    .card-label,
+    .subheader-label,
+    .postcode-textbox-row,
+    .fetch-checkbox {
+      margin-left: 0;
+    }
+}
+ 

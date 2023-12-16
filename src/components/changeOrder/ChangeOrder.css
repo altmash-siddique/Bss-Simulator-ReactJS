@@ -1,0 +1,66 @@
+.card-style {
+    background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
+    display: flex;
+    color: white;
+  
+    justify-content: center;
+    
+    margin: auto; /* Center horizontally */
+  }
+  
+  .centered-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .subheader-label {
+    margin-top: 10px; /* Adjusted margin */
+  }
+
+  .service-textbox{
+    margin-top: 20px;
+  }
+  
+  .submit-button {
+    color: #fff;
+    background-color: black;
+    border: 1px solid #000;
+    border-radius: 30px;
+    width: 100%;
+    height: 50px !important;
+    margin-top: 10px;
+  }
+  
+  .action-radio-group {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 30px;
+    grid-row-gap: 0px;
+  }
+  
+  .action-option {
+    color: white;
+    font-weight: bold;
+    width: 150px;
+    margin-top: 30px
+  }
+  
+  .serviceid-label {
+    margin-top: 8px;
+  }
+  @media (max-width: 767px) {
+    .centered-container,
+    .card-label,
+    .subheader-label,
+    .service-row {
+      margin-left: 0;
+    }
+  
+    .action-radio-group {
+      grid-template-columns: 1fr;
+      grid-gap: 20px;
+      margin-top: 10px;
+    }
+  }
