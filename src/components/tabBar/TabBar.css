@@ -1,0 +1,28 @@
+/* TabBar.css */
+
+.tabs-container .ant-tabs-nav .ant-tabs-tab {
+    color: white;
+    border-radius: 0;
+    /* Remove rounded corners */
+    background-color: black;
+}
+
+.ant-tabs-nav {
+    margin: 0px;
+}
+
+.tabs-container .ant-tabs-nav .ant-tabs-tab::before {
+    border-right: 0;
+    /* Remove the right border between tabs */
+}
+
+.tabs-container .ant-tabs-nav .ant-tabs-tab-active {
+    color: blue;
+    background-color: black;
+    /* Active tab background color */
+}
+
+.tabs-container .ant-tabs-nav .ant-tabs-tab-active::before {
+    border-bottom-color: black;
+    /* Active tab bottom border color */
+}
