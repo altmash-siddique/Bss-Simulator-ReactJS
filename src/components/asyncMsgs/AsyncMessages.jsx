@@ -50,7 +50,7 @@ const AsyncMessages = () => {
                 <Row>
                   <Col xs={24} sm={24} md={24} lg={8} className="col-item">
                     <h5>Error Code:</h5>
-                    <Input placeholder="Textbox 1" />
+                    <Input placeholder="Error Code" />
                   </Col>
                   <Col xs={24} sm={24} md={24} lg={10}>
                     <h5>Order Note:</h5>

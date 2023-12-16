@@ -9,11 +9,9 @@
 
 .card-style {
   height: 120vh;
-  /* Removed quotes around the value */
   background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
   display: flex;
   color: white;
-  margin-right: 30px;
 }
 
 .subheader-label {

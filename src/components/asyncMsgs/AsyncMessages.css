@@ -1,16 +1,12 @@
 .background-container {
     background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
     min-height: 150vh;
-
-
 }
 
 .custom-card {
     width: 50%;
     margin: auto;
     background: white;
-
-
 }
 
 .custom-card:hover {
@@ -21,7 +17,6 @@
 .orderid-custom-div {
     display: grid;
     place-items: center;
-
 }
 
 .orderid-row {
