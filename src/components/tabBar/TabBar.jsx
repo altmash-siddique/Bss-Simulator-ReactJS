@@ -8,6 +8,7 @@ import ServiceOrdering from '../serviceOrdering/ServiceOrdering';
 import Feasibility from '../feasibility/Feasibility';
 import AsyncMessages from '../asyncMsgs/AsyncMessages';
 import ChangeOrder from '../changeOrder/ChangeOrder';
+import { ServiceCharacterstics } from '../serviceOrdering/serviceCharacterstics';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -63,7 +64,7 @@ const TabBar = () => {
         <Feasibility></Feasibility>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <ServiceOrdering></ServiceOrdering>
+        <ServiceOrdering data={ServiceCharacterstics}></ServiceOrdering>
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
         <AsyncMessages></AsyncMessages>
