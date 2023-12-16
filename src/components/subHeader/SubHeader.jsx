@@ -2,19 +2,15 @@
 import React, { useState } from "react";
 import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
-import logo from '../../assets/images/odido-logo.svg';
+import logo from "../../assets/images/odido-logo.svg";
 import "./SubHeader.css";
 
 const Subheader = () => {
   const [selectedEnvironment, setSelectedEnvironment] =
     useState("Select Environment");
- // const [isDropdownVisible, setDropdownVisible] = useState(false);
-
   const handleEnvironmentSelect = (e) => {
     setSelectedEnvironment(e.item.props.children);
-    //setDropdownVisible(false); // Close the dropdown after selecting an option
   };
-
   const environmentMenu = (
     <Menu onClick={handleEnvironmentSelect}>
       <Menu.Item key="1.0">INT</Menu.Item>
@@ -25,16 +21,12 @@ const Subheader = () => {
 
   return (
     <div>
-        <div>
-        <img src={logo} alt="Logo" className="odido-logo"/>
-        </div>
-      
+      <div>
+        <img src={logo} alt="Logo" className="odido-logo" />
+      </div>
+
       <div className="env-subheader">
-        <Dropdown
-          overlay={environmentMenu}
-       
-          placement="bottomLeft"
-        >
+        <Dropdown overlay={environmentMenu} placement="bottomLeft">
           <Button>
             {selectedEnvironment} <DownOutlined />
           </Button>
