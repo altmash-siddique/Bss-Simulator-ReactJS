@@ -33,7 +33,7 @@ const AsyncMessages = () => {
           </Col>
         </Row>
       </div>
-      <div className="container">
+      <div className="container-async">
         <Row gutter={[16, 16]} className="custom-row">
           <Col xs={24} sm={24} md={24} lg={8} className="custom-col">
             <Card title="WBA Async Messages" bordered={false}>

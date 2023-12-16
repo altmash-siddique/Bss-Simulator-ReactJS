@@ -40,7 +40,7 @@
 
 }
 
-.container {
+.container-async {
     display: grid;
     grid-column-gap: 0px;
     grid-row-gap: 50px;
