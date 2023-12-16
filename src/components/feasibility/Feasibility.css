@@ -13,7 +13,7 @@
   background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
   display: flex;
   color: white;
-  /* Removed quotes around the value */
+  margin-right: 30px;
 }
 
 .subheader-label {

@@ -2,11 +2,8 @@
   background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
   display: flex;
   color: white;
-
   justify-content: center;
-
   margin: auto;
-  /* Center horizontally */
 }
 
 .centered-container {
