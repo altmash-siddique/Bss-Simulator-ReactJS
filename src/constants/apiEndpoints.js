@@ -1,6 +1,18 @@
 export const ECM_API_LAMBDA = {
     PATH :  'https://haxuqnfbm6.execute-api.eu-central-1.amazonaws.com/development?Parameter='
 }
+
+export const SOM = {
+  PATH: '/som/serviceOrder'
+}
+
+export const SQM = {
+   PATH:'/sqm/serviceQualification'
+}
+
+ export const OmDashBoardURL ={
+   PATH:'/om/#/dashboard'
+ }
 export const ORDER ={
     PATH : '/eoc/uws/v1/order'
 }
@@ -19,11 +31,11 @@ export const SERVICE_ORDER = {
 };
 
 export const SERVICE_QUALIFICATION= {
-    V1: '/eoc/serviceQualificationManagement/v1/serviceQualification',
-    V2: '/eoc/serviceQualificationManagement/v2/serviceQualification',
-    V3: '/eoc/serviceQualificationManagement/v3/serviceQualification',
-    V4: '/eoc/serviceQualificationManagement/v4/serviceQualification',
-    V5: '/eoc/serviceQualificationManagement/v5/serviceQualification',
+   v1: '/eoc/serviceQualificationManagement/v1/serviceQualification',
+   v2: '/eoc/serviceQualificationManagement/v2/serviceQualification',
+   v3: '/eoc/serviceQualificationManagement/v3/serviceQualification',
+   v4: '/eoc/serviceQualificationManagement/v4/serviceQualification',
+   v5: '/eoc/serviceQualificationManagement/v5/serviceQualification',
 }
 
 export const APPOINTMENTMANAGEMENT_EVENT= {

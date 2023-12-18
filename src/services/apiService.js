@@ -1,10 +1,16 @@
+// ApiService.js
+
+import { getAppConfig } from '../constants/apiConfig';
 class ApiService {
-  constructor(baseURL) {
-    this.baseURL = baseURL;
+  constructor(environment) {
+    // Use the specified environment or fallback to the default environment
+    this.appConfig = getAppConfig(environment);
   }
 
   async makeRequest(endpoint, method, data, headers, params) {
-    const url = new URL(`${this.baseURL}/${endpoint}`);
+    // Determine the base URL based on the TYK_API setting
+    const baseUrl = this.appConfig.tykApi ? this.appConfig.tykApi : this.appConfig.baseUrl;
+    const url = baseUrl + endpoint;
 
     // Add URL parameters
     if (params) {
