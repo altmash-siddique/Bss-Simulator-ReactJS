@@ -10,7 +10,7 @@ import ApiService from "../../services/apiService";
 const Feasibility = ({ selectedEnvironment }) => {
   const apiService = new ApiService(selectedEnvironment);
 
-  const [selectedVersion, setSelectedVersion] = useState("Select Version");
+  const [selectedVersion, setSelectedVersion] = useState("v1");
   const [feasibilityData, setFeasibilityData] = useState({});
   const [loadingVerify, setLoadingVerify] = useState(false);
   const [feasibilityError, setFeasibilityError] = useState("");
@@ -19,17 +19,32 @@ const Feasibility = ({ selectedEnvironment }) => {
   const [postcode, setPostcode] = useState("");
   const [houseNumber, setHouseNumber] = useState("");
   const [houseNumberExtension, setHouseNumberExtension] = useState("");
-  const [isFetchConnectionPoint, setIsFetchConnectionPoint] = useState(false);
+  const [isFetchConnectionPoint, setIsFetchConnectionPoint] = useState(1);
+
+  const handleCheckboxChange = () => {
+    setIsFetchConnectionPoint((prevValue) => (prevValue === 1 ? 0 : 1));
+  };
+  const handlePostcodeChange = (e) => {
+    setPostcode(e.target.value);
+  };
+
+  const handleHouseNumberChange = (e) => {
+    setHouseNumber(e.target.value);
+  };
+
+  const handleHouseNumberExtensionChange = (e) => {
+    setHouseNumberExtension(e.target.value);
+  };
 
   const handleFeasibilityCheck = async () => {
     try {
       // Set your placeData and addressDetails based on your logic
       setLoadingVerify(true);
-
+      const useeocApi = true; // Adjust based on your conditions
       const endpoint = SERVICE_QUALIFICATION[selectedVersion];
       const headers = {
         "Content-Type": "application/json",
-        Authorization: "Basic c3ZjX2NvbXVzZXI6ZXFDU0NxPmU4Iw==",
+        Authorization: "",
       };
 
       const placeData = houseNumberExtension
@@ -78,7 +93,7 @@ const Feasibility = ({ selectedEnvironment }) => {
         ],
       };
 
-      const response = await apiService.post(endpoint, addressDetails, headers);
+      const response = await apiService.post(endpoint, addressDetails, headers, '', useeocApi);
 
       setHideProceedButton(false);
       setLoadingVerify(false);
@@ -95,18 +110,11 @@ const Feasibility = ({ selectedEnvironment }) => {
     }
   };
 
-  useEffect(() => {
-    handleFeasibilityCheck();
-  }, [
-    selectedVersion,
-    postcode,
-    houseNumber,
-    houseNumberExtension,
-    isFetchConnectionPoint,
-  ]);
 
+  
   const handleMenuClick = (e) => {
-    setSelectedVersion(e.item.props.children);
+    const versionKey = e.key;
+    setSelectedVersion(versionKey);
   };
 
   const handleProceedButtonClick = () => {
@@ -114,11 +122,11 @@ const Feasibility = ({ selectedEnvironment }) => {
   };
   const menu = (
     <Menu onClick={handleMenuClick}>
-      <Menu.Item key="1">v1</Menu.Item>
-      <Menu.Item key="2">v2</Menu.Item>
-      <Menu.Item key="3">v3</Menu.Item>
-      <Menu.Item key="4">v4</Menu.Item>
-      <Menu.Item key="5">v5</Menu.Item>
+      <Menu.Item key="v1">v1</Menu.Item>
+      <Menu.Item key="v2">v2</Menu.Item>
+      <Menu.Item key="v3">v3</Menu.Item>
+      <Menu.Item key="v4">v4</Menu.Item>
+      <Menu.Item key="v5">v5</Menu.Item>
     </Menu>
   );
 
@@ -143,13 +151,19 @@ const Feasibility = ({ selectedEnvironment }) => {
         {" "}
         {/* Adjust gutter as needed */}
         <Col xs={24} sm={12} md={8} lg={5} className="postcode-textbox-row">
-          <Input placeholder="Postal Code" className="textbox-style" />
+          <Input placeholder="Postal Code" className="textbox-style"
+           value={postcode}
+           onChange={handlePostcodeChange} />
         </Col>
         <Col xs={24} sm={12} md={8} lg={5}>
-          <Input placeholder="House #" className="textbox-style" />
+          <Input placeholder="House #" className="textbox-style"
+          value={houseNumber}
+          onChange={handleHouseNumberChange} />
         </Col>
         <Col xs={24} sm={12} md={8} lg={5}>
-          <Input placeholder="Add." className="textbox-style" />
+          <Input placeholder="Add." className="textbox-style"
+          value={houseNumberExtension}
+          onChange={handleHouseNumberExtensionChange}/>
         </Col>
         <Col xs={24} sm={12} md={8} lg={5}>
           <Button
@@ -166,7 +180,8 @@ const Feasibility = ({ selectedEnvironment }) => {
       <Row gutter={[15, 15]}>
         <Col xs={24} sm={12} md={8} lg={10}>
           <div>
-            <Checkbox className="fetch-checkbox" defaultChecked>
+            <Checkbox className="fetch-checkbox" defaultChecked checked={isFetchConnectionPoint}
+          onChange={handleCheckboxChange}>
               Fetch Connection Point Details
             </Checkbox>
           </div>

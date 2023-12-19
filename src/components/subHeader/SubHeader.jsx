@@ -1,5 +1,5 @@
 // Subheader.js
-import React, { useState} from "react";
+import React from "react";
 import { Menu, Dropdown, Button } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import logo from "../../assets/images/odido-logo.svg";
@@ -7,7 +7,8 @@ import "./SubHeader.css";
 
 const Subheader = ({ selectedEnvironment, onEnvironmentChange }) => {
     const handleEnvironmentSelect = (e) => {
-      const newEnvironment = e.item.props.children;
+      const newEnvironment = e.key;
+     console.log(newEnvironment);
       onEnvironmentChange(newEnvironment);
     };
 
@@ -15,9 +16,9 @@ const Subheader = ({ selectedEnvironment, onEnvironmentChange }) => {
   
   const environmentMenu = (
     <Menu onClick={handleEnvironmentSelect}>
-      <Menu.Item key="1.0">INT</Menu.Item>
-      <Menu.Item key="2.0">UAT</Menu.Item>
-      <Menu.Item key="3.0">PROD</Menu.Item>
+      <Menu.Item key="INT">INT</Menu.Item>
+      <Menu.Item key="UAT">UAT</Menu.Item>
+      <Menu.Item key="PROD">PROD</Menu.Item>
     </Menu>
   );
 
