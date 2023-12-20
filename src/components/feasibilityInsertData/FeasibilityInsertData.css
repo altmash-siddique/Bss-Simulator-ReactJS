@@ -1,0 +1,28 @@
+.feasibilityDataCardAlignment {
+    height: 75vh;
+    width: 90%;
+    margin: 20px auto auto auto;
+}
+
+.feasibilityDataHeaderText {
+    margin: 20px;
+    font-size: 17px;
+    font-family: Odido;
+}
+
+.feasibilityDataserviceQualificationItem {
+    margin: 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 3rem!important;
+    border-radius: 0.25rem!important;
+}
+
+.feasibilityServiceName {
+    font-weight: bold;
+}
+
+.background-wrapper {
+    height: 90vh;
+    background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
+}
+  

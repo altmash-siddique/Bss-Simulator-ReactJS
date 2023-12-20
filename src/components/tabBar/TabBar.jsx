@@ -1,59 +1,76 @@
-import React, { useState, useEffect } from "react";
-import { Tabs} from "antd";
-import Subheader from "../subHeader/SubHeader"; // Import the Subheader component
-import ServiceOrdering from "../serviceOrdering/ServiceOrdering";
-import Feasibility from "../feasibility/Feasibility";
-import AsyncMessages from "../asyncMsgs/AsyncMessages";
-import ChangeOrder from "../changeOrder/ChangeOrder";
-import { ServiceCharacterstics } from "../serviceOrdering/serviceCharacterstics";
-import "./TabBar.css";
+// TabBar.js
+import React, { useState, useEffect } from 'react';
+import { Tabs } from 'antd';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import Subheader from '../subHeader/SubHeader';
+import RouteConfig from '../../routes/Route'; // Import the Routes component
 import { getAppConfig } from '../../constants/apiConfig';
+import './TabBar.css';
 
 const { TabPane } = Tabs;
 
 const TabBar = () => {
-  const [activeKey, setActiveKey] = useState("1");
+  const navigate = useNavigate();
+  const location = useLocation();
   const [selectedEnvironment, setSelectedEnvironment] = useState('INT');
- 
-  
-  const handleChange = (key) => {
-    setActiveKey(key);
-  };
-  
+  const [activeKey, setActiveKey] = useState(location.pathname);
+
   const handleEnvironmentChange = (newEnvironment) => {
     setSelectedEnvironment(newEnvironment);
   };
 
+  const handleChange = (key) => {
+    setActiveKey(key);
+    navigate(key); // Update the URL when the tab changes
+  };
+
+  useEffect(() => {
+    setActiveKey(location.pathname);
+  }, [location.pathname]);
+
   useEffect(() => {
     // Update selectedEnvironmentName when selectedEnvironment changes
     const config = getAppConfig(selectedEnvironment);
-    
-  }, [selectedEnvironment]);
 
+  }, [selectedEnvironment]);
 
   return (
     <div>
-      <Subheader selectedEnvironment={selectedEnvironment} onEnvironmentChange={handleEnvironmentChange}/>
+      <Subheader
+        selectedEnvironment={selectedEnvironment}
+        onEnvironmentChange={handleEnvironmentChange}
+      />
       <div className="tabs-section">
         <Tabs
           type="card"
-          activeKey={activeKey}
           onChange={handleChange}
+          activeKey={activeKey}
           className="tabs-container"
         >
-          <TabPane tab="Feasibility Check" key="1">
-            <Feasibility selectedEnvironment={selectedEnvironment} />
-          </TabPane>
-          <TabPane tab="Service Ordering" key="2">
-            <ServiceOrdering data={ServiceCharacterstics} selectedEnvironment={selectedEnvironment} />
-          </TabPane>
-          <TabPane tab="Async Messages" key="3">
-            <AsyncMessages selectedEnvironment={selectedEnvironment} />
-          </TabPane>
-          <TabPane tab="Change/Disconnect Order" key="4">
-            <ChangeOrder selectedEnvironment={selectedEnvironment} />
-          </TabPane>
+            <TabPane
+            tab="Feasibility Check"
+            key="/feasibility"
+            onClick={() => handleChange('/feasibility')}
+          />
+          <TabPane
+            tab="Service Ordering"
+            key="/service-ordering"
+            onClick={() => handleChange('/service-ordering')}
+          />
+          <TabPane
+            tab="Async Messages"
+            key="/async-messages"
+            onClick={() => handleChange('/async-messages')}
+          />
+          <TabPane
+            tab="Change/Disconnect Order"
+            key="/change-order"
+            onClick={() => handleChange('/change-order')}
+          />
         </Tabs>
+
+        {/* Use the Routes component for rendering content based on routes */}
+        <RouteConfig selectedEnvironment={selectedEnvironment} />
       </div>
     </div>
   );
