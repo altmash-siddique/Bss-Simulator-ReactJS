@@ -1,6 +1,12 @@
 import React from 'react'
 
-const Card = ({ title, fields }) => {
+const Card = ({ title, fields, children, onInputChange }) => {
+  const handleInputChange = (e, fieldName) => {
+    const { value } = e.target;
+    onInputChange(fieldName, value);
+
+    console.log(value)
+  };
   return (
     <div className="card">
       <h2>{title}</h2>
@@ -12,9 +18,11 @@ const Card = ({ title, fields }) => {
             type={field.type}
             id={field.name}
             name={field.name}
+            onChange={(e) => handleInputChange(e, field.name)}
           />
         </div>
       ))}
+      {children}
     </div>
   )
 }

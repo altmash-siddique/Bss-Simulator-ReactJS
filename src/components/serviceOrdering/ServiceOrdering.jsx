@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import "./Accordion.css";
+import React, { useState } from "react";
+import "./ServiceOrdering.css";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -7,37 +7,44 @@ import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Card from "./Card";
 import axios from "axios";
+import { Button } from "antd";
+import ServiceOrderJson from "./ServiceOrderJson";
 
 const ServiceOrdering = ({ data }) => {
-  const [expandedIndex, setExpandedIndex] = useState(-1); // Initialize with -1 or any value that won't be an index
-
   const [activeSections, setActiveSections] = useState([]);
-  const [labelNames, setLabelNames] = useState([]);
+  const [labelNamesBySection, setLabelNamesBySection] = useState([]);
+  const [subSectionLabels, setSubSectionLabels] = useState([]);
 
-  const handleAccordionChange = (index) => {
-    if (activeSections.includes(index)) {
-      setActiveSections(
-        activeSections.filter((activeIndex) => activeIndex !== index)
-      );
-    } else {
-      setActiveSections([...activeSections, index]);
-    }
+  const [showJson, setShowJson] = useState(false);
+
+  const handlePrepareClick = () => {
+    setShowJson(!showJson);
   };
 
-  const [labelNamesBySection, setLabelNamesBySection] = useState([]);
+  const [inputValues, setInputValues] = useState({});
 
-  useEffect(() => {
-    // Fetch data from the API for the active sections
-    if (activeSections.length > 0) {
-      activeSections.forEach((index) => {
-        const sectionTitle = data[index].title;
+  const handleInputChange = (fieldName, value) => {
+    setInputValues((prevValues) => ({
+      ...prevValues,
+      [fieldName]: value,
+    }));
+  };
+
+  const handleAccordionChange = (index, isSubSection = false) => {
+    if (isSubSection) {
+      const subSection = data.reduce(
+        (acc, section) => acc.concat(section.subSections || []),
+        []
+      )[index];
+
+      if (subSection && subSection.title) {
         axios
           .get(
-            `https://haxuqnfbm6.execute-api.eu-central-1.amazonaws.com/development?Parameter=${sectionTitle}`
+            `https://haxuqnfbm6.execute-api.eu-central-1.amazonaws.com/development?Parameter=${subSection.title}`
           )
           .then((response) => {
             const fetchedLabelNames =
-              response.data[0].versions[0].characteristics
+              response.data[0]?.versions[0]?.characteristics
                 .filter((characteristic) =>
                   characteristic.versions.some(
                     (version) =>
@@ -49,24 +56,88 @@ const ServiceOrdering = ({ data }) => {
                 )
                 .map((characteristic) => characteristic.id);
 
-            // Update the label names for each section separately
-            setLabelNamesBySection((prevLabelNames) => {
-              const updatedLabelNames = [...prevLabelNames];
-              updatedLabelNames[index] = fetchedLabelNames;
-              return updatedLabelNames;
-            });
+            setSubSectionLabels((prevLabels) => [
+              ...prevLabels,
+              fetchedLabelNames,
+            ]);
           })
           .catch((error) => {
-            console.error("Error fetching data:", error);
+            console.error("Error fetching subSection data:", error);
           });
-      });
+      }
+    } else {
+      if (activeSections.includes(index)) {
+        setActiveSections(
+          activeSections.filter((activeIndex) => activeIndex !== index)
+        );
+      } else {
+        setActiveSections([...activeSections, index]);
+        const section = data.find((_, idx) => idx === index);
+        if (section && section.title) {
+          axios
+            .get(
+              `https://haxuqnfbm6.execute-api.eu-central-1.amazonaws.com/development?Parameter=${section.title}`
+            )
+            .then((response) => {
+              const fetchedLabelNames =
+                response.data[0]?.versions[0]?.characteristics
+                  .filter((characteristic) =>
+                    characteristic.versions.some(
+                      (version) =>
+                        version.properties &&
+                        version.properties.some(
+                          (prop) => prop.value === "bssOrderable"
+                        )
+                    )
+                  )
+                  .map((characteristic) => characteristic.id);
+
+              setLabelNamesBySection((prevLabels) => [
+                ...prevLabels,
+                fetchedLabelNames,
+              ]);
+
+              if (section.subSections) {
+                section.subSections.forEach((subSection) => {
+                  axios
+                    .get(
+                      `https://haxuqnfbm6.execute-api.eu-central-1.amazonaws.com/development?Parameter=${subSection.title}`
+                    )
+                    .then((subResponse) => {
+                      const fetchedSubLabelNames =
+                        subResponse.data[0]?.versions[0]?.characteristics
+                          .filter((characteristic) =>
+                            characteristic.versions.some(
+                              (version) =>
+                                version.properties &&
+                                version.properties.some(
+                                  (prop) => prop.value === "bssOrderable"
+                                )
+                            )
+                          )
+                          .map((characteristic) => characteristic.id);
+
+                      setSubSectionLabels((prevLabels) => [
+                        ...prevLabels,
+                        fetchedSubLabelNames,
+                      ]);
+                    })
+                    .catch((error) => {
+                      console.error("Error fetching subSection data:", error);
+                    });
+                });
+              }
+            })
+            .catch((error) => {
+              console.error("Error fetching section data:", error);
+            });
+        }
+      }
     }
-  }, [activeSections, data]);
+  };
 
-  const selectedSection = data.find(
-    (section, index) => expandedIndex === index
-  );
-
+  console.log(data)
+  
   return (
     <>
       <div className="container">
@@ -95,7 +166,10 @@ const ServiceOrdering = ({ data }) => {
                 {section.subSections && (
                   <div>
                     {section.subSections.map((subSection, subIndex) => (
-                      <Accordion key={subIndex}>
+                      <Accordion
+                        key={subIndex}
+                        onChange={() => handleAccordionChange(subIndex, true)}
+                      >
                         <AccordionSummary
                           expandIcon={<ExpandMoreIcon />}
                           aria-controls={`panel${index}-${subIndex}-content`}
@@ -145,65 +219,76 @@ const ServiceOrdering = ({ data }) => {
             <input type="text" id="customerId" name="customerId" />
           </div>
 
-          <div className="card">
+          <div className="main-card">
             <h2>Party Contact</h2>
             <Card
               title="Site Contact"
               fields={[
-                { label: "Type", name: "type", type: "text" },
-                { label: "First Name", name: "firstname", type: "text" },
-                { label: "Last Name", name: "lastname", type: "text" },
+                { label: "Type", name: "site_type", type: "text" },
+                { label: "First Name", name: "site_firstname", type: "text" },
+                { label: "Last Name", name: "site_lastname", type: "text" },
                 {
                   label: "Alternate Phone Number",
-                  name: "altPhNum1",
-                  type: "text",
+                  name: "site_altPhNum1",
+                  type: "number",
                 },
-                { label: "Phone Number", name: "phNum", type: "text" },
+                { label: "Phone Number", name: "site_phNum", type: "number" },
                 {
                   label: "Alternate Phone Number",
-                  name: "altPhNum2",
-                  type: "text",
+                  name: "site_altPhNum2",
+                  type: "number",
                 },
-                { label: "Email", name: "email", type: "text" },
+                { label: "Email", name: "site_email", type: "number" },
               ]}
+              onInputChange={handleInputChange}
             />
             <Card
               title="Installation Address"
               fields={[
-                { label: "Type", name: "type", type: "text" },
-                { label: "street", name: "street", type: "text" },
-                { label: "houseNumber", name: "houseNumber", type: "text" },
+                { label: "Type", name: "install_type", type: "text" },
+                { label: "street", name: "install_street", type: "text" },
+                {
+                  label: "houseNumber",
+                  name: "install_houseNumber",
+                  type: "number",
+                },
                 {
                   label: "houseNumberExtension",
-                  name: "houseNumberExtension",
-                  type: "text",
+                  name: "install_houseNumberExtension",
+                  type: "number",
                 },
-                { label: "postcode", name: "postcode", type: "text" },
-                { label: "city", name: "city", type: "text" },
-                { label: "country", name: "country", type: "text" },
+                { label: "postcode", name: "install_postcode", type: "number" },
+                { label: "city", name: "install_city", type: "text" },
+                { label: "country", name: "install_country", type: "text" },
               ]}
+              onInputChange={handleInputChange}
             />
             <Card
               title="Connection Point Address"
               fields={[
-                { label: "Type", name: "type", type: "text" },
-                { label: "street", name: "street", type: "text" },
-                { label: "houseNumber", name: "houseNumber", type: "text" },
+                { label: "Type", name: "connect_type", type: "text" },
+                { label: "street", name: "connect_street", type: "text" },
+                {
+                  label: "houseNumber",
+                  name: "connect_houseNumber",
+                  type: "number",
+                },
                 {
                   label: "houseNumberExtension",
-                  name: "houseNumberExtension",
-                  type: "text",
+                  name: "connect_houseNumberExtension",
+                  type: "number",
                 },
-                { label: "postcode", name: "postcode", type: "text" },
-                { label: "city", name: "city", type: "text" },
-                { label: "country", name: "country", type: "text" },
+                { label: "postcode", name: "connect_postcode", type: "number" },
+                { label: "city", name: "connect_city", type: "text" },
+                { label: "country", name: "connect_country", type: "text" },
                 {
                   label: "connectionPointIdentifier",
-                  name: "connectionPointIdentifier",
+                  name: "connect_connectionPointIdentifier",
                   type: "text",
                 },
-                { label: "nlType", name: "nlType", type: "text" },
+                { label: "nlType", name: "connect_nlType", type: "text" },
               ]}
+              onInputChange={handleInputChange}
             />
 
             {data.map((section, index) =>
@@ -219,12 +304,47 @@ const ServiceOrdering = ({ data }) => {
                       type: "text",
                     })) || []
                   }
-                />
+                  onInputChange={handleInputChange}
+                >
+                  {section.subSections &&
+                    section.subSections.map((subSection, subIndex) => (
+                      <Card
+                        key={`nestedCard-${subIndex}`}
+                        title={subSection.title}
+                        fields={
+                          subSectionLabels[subIndex]?.map(
+                            (labelName, labelIndex) => ({
+                              label: labelName,
+                              name: `field${labelIndex + 1}`,
+                              type: "text",
+                            })
+                          ) || []
+                        }
+                        onInputChange={handleInputChange}
+                      />
+                    ))}
+                </Card>
               ) : null
             )}
+
+            <Button
+              shape="round"
+              className="prepare-button"
+              onClick={handlePrepareClick}
+            >
+              Prepare Service Order
+            </Button>
           </div>
         </div>
       </div>
+      {showJson && (
+        <ServiceOrderJson
+          inputValues={inputValues} // Make sure inputValues are properly passed
+          labelNamesBySection={labelNamesBySection}
+          subSectionLabels={subSectionLabels}
+          serviceSpecName={data.find((_, idx) => activeSections.includes(idx))?.title}
+        />
+      )}
     </>
   );
 };
