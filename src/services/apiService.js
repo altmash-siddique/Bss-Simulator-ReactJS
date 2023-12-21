@@ -1,6 +1,8 @@
 // ApiService.js
 
-import { getAppConfig } from '../constants/apiConfig';
+import { getAppConfig } from "../constants/apiConfig";
+import { ECM_API_LAMBDA } from "../constants/apiEndpoints";
+
 class ApiService {
   constructor(environment) {
     // Use the specified environment or fallback to the default environment
@@ -9,20 +11,24 @@ class ApiService {
 
   async makeRequest(endpoint, method, data, headers, params, useeocApi = true) {
     const appConfig = getAppConfig(this.environment);
-    let url = '';
-   // Check if useeocApi is true and baseUrl is present, use it; otherwise, use tykApi
-   if (useeocApi && appConfig.baseUrl) {
-    url = `${appConfig.baseUrl}${endpoint}`;
-  } else if (appConfig.tykApi) {
-    url = `${appConfig.tykApi}${endpoint}`;
-  } else {
-    throw new Error('Neither tykApi nor baseUrl is defined in the configuration.');
-  }
+    let url = "";
+    if (endpoint === ECM_API_LAMBDA.PATH) {
+      url = `${ECM_API_LAMBDA.PATH}`;
+    } else if (useeocApi && appConfig.baseUrl) {
+      url = `${appConfig.baseUrl}${endpoint}`;
+    } else if (appConfig.tykApi) {
+      url = `${appConfig.tykApi}${endpoint}`;
+    } else {
+      throw new Error(
+        "Neither tykApi nor baseUrl is defined in the configuration."
+      );
+    }
     // Add URL parameters
     if (params) {
-      Object.keys(params).forEach((key) =>
-        url.searchParams.append(key, params[key])
-      );
+      Object.keys(params).forEach((key) => {
+        // Appending the query parameter directly to the URL
+        url += `?${key}=${params[key]}`;
+      });
     }
 
     const requestOptions = {

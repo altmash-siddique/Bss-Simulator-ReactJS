@@ -1,5 +1,5 @@
 export const ECM_API_LAMBDA = {
-    PATH :  'https://haxuqnfbm6.execute-api.eu-central-1.amazonaws.com/development?Parameter='
+    PATH :  'https://haxuqnfbm6.execute-api.eu-central-1.amazonaws.com/development'
 }
 
 export const SOM = {

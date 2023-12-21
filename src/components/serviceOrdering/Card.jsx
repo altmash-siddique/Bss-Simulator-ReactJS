@@ -1,18 +1,23 @@
-import React from 'react'
+import React from "react";
 
 const Card = ({ title, fields, children, onInputChange }) => {
   const handleInputChange = (e, fieldName) => {
     const { value } = e.target;
     onInputChange(fieldName, value);
 
-    console.log(value)
+    console.log(value);
   };
   return (
     <div className="card">
       <h2>{title}</h2>
       {fields.map((field, index) => (
         <div className="input-group" key={index}>
-          <label htmlFor={field.name} style={{ minWidth: '200px', marginRight: '10px' }}>{field.label}:</label>
+          <label
+            htmlFor={field.name}
+            style={{ minWidth: "200px", marginRight: "10px" }}
+          >
+            {field.label}:
+          </label>
           <input
             className="input-field"
             type={field.type}
@@ -24,7 +29,7 @@ const Card = ({ title, fields, children, onInputChange }) => {
       ))}
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default Card
+export default Card;

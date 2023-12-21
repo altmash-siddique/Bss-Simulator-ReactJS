@@ -1,29 +1,106 @@
 import React, { useState } from "react";
 import { DownCircleOutlined } from "@ant-design/icons";
-import CopyJson from "./CopyJson";
+import ReactJson from "react-json-view";
 
 const ServiceOrderJson = ({
   inputValues,
   labelNamesBySection,
   subSectionLabels,
-  serviceSpecName
+  serviceSpecName,
+  displayedCards,
+  totalDisplayedCount,
 }) => {
-  const generateServiceOrderData = () => {
-    const labelNames = labelNamesBySection[0] || [];
-  const serviceCharacteristic = labelNames.map((labelName, index) => {
-    let valueType = "String"; 
-    if (labelName === "deliveredNLType" || labelName === "minimumBandwidthDown" || labelName === "minimumBandwidthUp" || labelName === "promisedBandwidthDown" || labelName === "promisedBandwidthUp" || labelName === "serviceBandwidthDown" || labelName === "serviceBandwidthUp") {
-      valueType = "Number";
-    } else if (labelName === "firstPossibleDate") {
-      valueType = "Date";
-    }
+  console.log("Display cards", displayedCards); // View the filtered card data
+  console.log("Count", totalDisplayedCount);
 
-    return {
-      name: labelName,
-      valueType: valueType,
-      value: inputValues[labelName] || "",
-    };
-  });
+  const generateServiceOrderData = () => {
+    const orderItems = displayedCards.map((cardData, index) => {
+      const serviceCharacteristic = labelNamesBySection[0]?.reduce(
+        (acc, labelName, index) => {
+          if (inputValues[labelName] !== "") {
+            let valueType = "String";
+            if (
+              labelName === "deliveredNLType" ||
+              labelName === "minimumBandwidthDown" ||
+              labelName === "minimumBandwidthUp" ||
+              labelName === "promisedBandwidthDown" ||
+              labelName === "promisedBandwidthUp" ||
+              labelName === "serviceBandwidthDown" ||
+              labelName === "serviceBandwidthUp"
+            ) {
+              valueType = "Number";
+            } else if (labelName === "firstPossibleDate") {
+              valueType = "Date";
+            }
+
+            const value = inputValues[labelName] || "";
+            if (value !== "") {
+              acc.push({
+                name: labelName,
+                valueType: valueType,
+                value: value,
+              });
+            }
+          }
+          return acc;
+        },
+        []
+      );
+
+      return {
+        id: `${index + 1}`,
+        action: "Add",
+        service: {
+          serviceCharacteristic,
+          relatedParty: [
+            {
+              "@type": inputValues.site_type || "",
+              role: "SiteContact",
+              id: "C_1702883888043",
+              firstName: inputValues.site_firstName || "",
+              lastName: inputValues.site_lastName || "",
+              phoneNumber: inputValues.site_phNum || "",
+              alternatePhoneNumber: inputValues.site_altPhNum1 || "",
+              mobileNumber: inputValues.site_altPhNum2 || "",
+              email: inputValues.site_email || "",
+            },
+          ],
+          place: [
+            {
+              "@type": inputValues.install_type || "",
+              role: "InstallationAddress",
+              id: "",
+              street: inputValues.install_street || "",
+              houseNumber: inputValues.install_houseNumber || "",
+              houseNumberExtension:
+                inputValues.install_houseNumberExtension || "",
+              postcode: inputValues.install_postcode || "",
+              city: inputValues.install_city || "",
+              country: inputValues.install_country || "",
+            },
+            {
+              "@type": inputValues.connect_type || "",
+              role: "ConnectionPoint",
+              id: "",
+              street: inputValues.connect_street || "",
+              houseNumber: inputValues.connect_houseNumber || "",
+              houseNumberExtension:
+                inputValues.connect_houseNumberExtension || "",
+              postcode: inputValues.connect_postcode || "",
+              city: inputValues.connect_city || "",
+              country: inputValues.connect_country || "",
+              connectionPointIdentifier:
+                inputValues.connect_connectionPointIdentifier || "",
+              nlType: inputValues.connect_nlType || "",
+            },
+          ],
+          serviceSpecification: {
+            name: serviceSpecName,
+          },
+        },
+      };
+    });
+
     const updatedServiceOrderData = {
       requestId: "1702883952244",
       externalId: "1702883952244",
@@ -41,60 +118,7 @@ const ServiceOrderJson = ({
           name: "BSS Simulator Integration Environment",
         },
       ],
-      orderItem: [
-        {
-          id: "1",
-          action: "Add",
-          service: {
-            serviceCharacteristic: serviceCharacteristic,
-            relatedParty: [
-              {
-                "@type": inputValues.site_type || "",
-                role: "SiteContact",
-                id: "C_1702883888043",
-                firstName: inputValues.site_firstName || "",
-                lastName: inputValues.site_lastName || "",
-                phoneNumber: inputValues.site_phNum || "",
-                alternatePhoneNumber: inputValues.site_altPhNum1 || "",
-                mobileNumber: inputValues.site_altPhNum2 || "",
-                email: inputValues.site_email || "",
-              },
-            ],
-            place: [
-              {
-                "@type": inputValues.install_type || "",
-                role: "InstallationAddress",
-                id: "",
-                street: inputValues.install_street || "",
-                houseNumber: inputValues.install_houseNumber || "",
-                houseNumberExtension:
-                  inputValues.install_houseNumberExtension || "",
-                postcode: inputValues.install_postcode || "",
-                city: inputValues.install_city || "",
-                country: inputValues.install_country || "",
-              },
-              {
-                "@type": inputValues.connect_type || "",
-                role: "ConnectionPoint",
-                id: "",
-                street: inputValues.connect_street || "",
-                houseNumber: inputValues.connect_houseNumber || "",
-                houseNumberExtension:
-                  inputValues.connect_houseNumberExtension || "",
-                postcode: inputValues.connect_postcode || "",
-                city: inputValues.connect_city || "",
-                country: inputValues.connect_country || "",
-                connectionPointIdentifier:
-                  inputValues.connect_connectionPointIdentifier || "",
-                nlType: inputValues.connect_nlType || "",
-              },
-            ],
-            serviceSpecification: {
-              name: serviceSpecName,
-            },
-          },
-        },
-      ],
+      orderItem: orderItems,
     };
 
     return updatedServiceOrderData;
@@ -102,12 +126,11 @@ const ServiceOrderJson = ({
 
   console.log(inputValues);
   console.log(labelNamesBySection[0][0]);
-  console.log(serviceSpecName)
+  console.log(serviceSpecName);
 
   const [showJson, setShowJson] = useState(true);
 
   const handleShowJson = () => {
-    // Toggle the visibility state
     setShowJson(!showJson);
   };
 
@@ -119,10 +142,24 @@ const ServiceOrderJson = ({
           <DownCircleOutlined onClick={handleShowJson} />
         </h2>
         {showJson && (
-        <CopyJson code={JSON.stringify(generateServiceOrderData(), null, 2)} />
-      )}
+          <ReactJson
+            src={JSON.parse(
+              JSON.stringify(generateServiceOrderData(), null, 2)
+            )}
+            theme="monokai-light"
+            style={{
+              fontWeight: "bold",
+              fontFamily: "monospace",
+              letterSpacing: "1px",
+              padding: 24,
+              minHeight: 280,
+              width: "80%",
+              marginLeft: "auto",
+              marginRight: "auto",
+            }}
+          />
+        )}
       </div>
-      
     </div>
   );
 };
