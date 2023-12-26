@@ -9,46 +9,60 @@ const ServiceOrderJson = ({
   serviceSpecName,
   displayedCards,
   totalDisplayedCount,
+  subsectionTitles,
+  selectedAccordionIndexes,
 }) => {
   console.log("Display cards", displayedCards); // View the filtered card data
   console.log("Count", totalDisplayedCount);
+  console.log("Sub sections: ", subsectionTitles);
+  console.log("Selected INdex", selectedAccordionIndexes);
+
+  let title = "";
 
   const generateServiceOrderData = () => {
-    const orderItems = displayedCards.map((cardData, index) => {
-      const serviceCharacteristic = labelNamesBySection[0]?.reduce(
-        (acc, labelName, index) => {
-          if (inputValues[labelName] !== "") {
-            let valueType = "String";
-            if (
-              labelName === "deliveredNLType" ||
-              labelName === "minimumBandwidthDown" ||
-              labelName === "minimumBandwidthUp" ||
-              labelName === "promisedBandwidthDown" ||
-              labelName === "promisedBandwidthUp" ||
-              labelName === "serviceBandwidthDown" ||
-              labelName === "serviceBandwidthUp"
-            ) {
-              valueType = "Number";
-            } else if (labelName === "firstPossibleDate") {
-              valueType = "Date";
-            }
+    const orderIds = displayedCards.map((_, index) => `${index + 1}`);
+    const mainSectionIds = {};
 
-            const value = inputValues[labelName] || "";
-            if (value !== "") {
-              acc.push({
-                name: labelName,
-                valueType: valueType,
-                value: value,
-              });
-            }
+    const orderItems = displayedCards.map((cardData, index) => {
+      const id = orderIds[index]; // Get the current order ID
+      mainSectionIds[cardData.title] = id;
+      title = cardData.title;
+      const fields = cardData.fields;
+      const serviceCharacteristic = fields.reduce((acc, field) => {
+        const labelName = field.label;
+        const fullName = `${title}.${field.name}`;
+
+        if (inputValues[fullName] !== "") {
+          let valueType = "String";
+
+          if (
+            field.name === "deliveredNLType" ||
+            field.name === "minimumBandwidthDown" ||
+            field.name === "minimumBandwidthUp" ||
+            field.name === "promisedBandwidthDown" ||
+            field.name === "promisedBandwidthUp" ||
+            field.name === "serviceBandwidthDown" ||
+            field.name === "serviceBandwidthUp"
+          ) {
+            valueType = "Number";
+          } else if (field.name === "firstPossibleDate") {
+            valueType = "Date";
           }
-          return acc;
-        },
-        []
-      );
+
+          const value = inputValues[fullName] || "";
+          if (value !== "") {
+            acc.push({
+              name: labelName,
+              valueType: valueType,
+              value: value,
+            });
+          }
+        }
+        return acc;
+      }, []);
 
       return {
-        id: `${index + 1}`,
+        id,
         action: "Add",
         service: {
           serviceCharacteristic,
@@ -95,9 +109,31 @@ const ServiceOrderJson = ({
             },
           ],
           serviceSpecification: {
-            name: serviceSpecName,
+            name: title,
           },
         },
+      };
+    });
+
+    const selectedSubsections = selectedAccordionIndexes.map(
+      (index) => subsectionTitles[index]
+    );
+    const subServiceOrderItems = selectedSubsections.map((subtitle, index) => {
+      return {
+        id: `${index + orderItems.length + 1}`,
+        action: "Add",
+        service: {
+          serviceCharacteristic: [],
+          serviceSpecification: {
+            name: subtitle,
+          },
+        },
+        orderItemRelationship: [
+          {
+            type: "ReliesOn",
+            id: mainSectionIds[title],
+          },
+        ],
       };
     });
 
@@ -118,7 +154,7 @@ const ServiceOrderJson = ({
           name: "BSS Simulator Integration Environment",
         },
       ],
-      orderItem: orderItems,
+      orderItem: [...orderItems, ...subServiceOrderItems],
     };
 
     return updatedServiceOrderData;

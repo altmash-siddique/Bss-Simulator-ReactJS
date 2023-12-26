@@ -4,9 +4,13 @@ const Card = ({ title, fields, children, onInputChange }) => {
   const handleInputChange = (e, fieldName) => {
     const { value } = e.target;
     onInputChange(fieldName, value);
-
-    console.log(value);
   };
+
+  const trimLabelPrefix = (label) => {
+    const separatorIndex = label.indexOf(".");
+    return separatorIndex !== -1 ? label.substring(separatorIndex + 1) : label;
+  };
+
   return (
     <div className="card">
       <h2>{title}</h2>
@@ -16,7 +20,7 @@ const Card = ({ title, fields, children, onInputChange }) => {
             htmlFor={field.name}
             style={{ minWidth: "200px", marginRight: "10px" }}
           >
-            {field.label}:
+            {trimLabelPrefix(field.label)}:
           </label>
           <input
             className="input-field"
