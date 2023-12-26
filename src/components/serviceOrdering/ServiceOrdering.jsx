@@ -24,13 +24,14 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       if (section.displayAdditionalCard && activeSections.includes(index)) {
         const additionalCardData = {
           title: section.title,
-          fields: labelNamesBySection[index]?.map((labelName) => ({
-            label: labelName,
-            name: labelName,
-            type: "text",
-          })) || [],
+          fields:
+            labelNamesBySection[index]?.map((labelName) => ({
+              label: labelName,
+              name: labelName,
+              type: "text",
+            })) || [],
         };
-  
+
         const nestedCardCount = selectedAccordionIndexes.reduce(
           (nestedAcc, selectedIndex) => {
             if (
@@ -47,14 +48,16 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           },
           0
         );
-  
+
         acc.push({ ...additionalCardData, nestedCardCount });
       }
       return acc;
     }, []);
-  
+
     return { displayedCards, totalDisplayedCount: displayedCards.length };
   };
+
+  console.log("Selected Accordion", selectedAccordionIndexes);
 
   const { displayedCards, totalDisplayedCount } = getDisplayedCardsData();
 
@@ -75,8 +78,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     try {
       const useeocApi = false;
       const endpoint = ECM_API_LAMBDA.PATH;
-      console.log(endpoint);
-      console.log(title);
       const params = { Parameter: title };
       const headers = {
         "Content-Type": "application/json",
@@ -88,7 +89,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         params,
         useeocApi
       );
-      console.log(response[0]);
 
       const fetchedLabelNames = response[0]?.versions[0]?.characteristics
         .filter((characteristic) =>
@@ -133,7 +133,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         );
       } else {
         setActiveSections([...activeSections, index]);
-        
+
         // Fetch section labels only when its accordion is expanded
         const section = data.find((_, idx) => idx === index);
         if (section && section.title) {
@@ -141,7 +141,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         }
       }
     }
-    
   };
 
   return (
@@ -170,51 +169,70 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
               <AccordionDetails>
                 <Typography>{section.content}</Typography>
                 {section.subSections && (
-                <div>
-                  {section.subSections.map((subSection, subIndex) => (
-                    <Accordion
-                      key={subIndex}
-                      onChange={() => handleAccordionChange(subIndex, true)}
-                    >
-                      <AccordionSummary
-                        expandIcon={<ExpandMoreIcon style={{ color: "red" }} />}
-                        aria-controls={`panel${index}-${subIndex}-content`}
-                        id={`panel${index}-${subIndex}-header`}
-                        onClick={() => {
-                          if (!selectedAccordionIndexes.includes(subIndex)) {
-                            setSelectedAccordionIndexes([...selectedAccordionIndexes, subIndex]);
-                          } else {
-                            setSelectedAccordionIndexes(selectedAccordionIndexes.filter(item => item !== subIndex));
-                          }
-                        }}
+                  <div>
+                    {section.subSections.map((subSection, subIndex) => (
+                      <Accordion
+                        key={subIndex}
+                        onChange={() => handleAccordionChange(subIndex, true)}
                       >
-                        <Typography>{subSection.title}</Typography>
-                      </AccordionSummary>
-                      <AccordionDetails>
-                        <Typography>{subSection.content}</Typography>
-                        {subSection.subSubSections && (
-                          <div>
-                            {subSection.subSubSections.map((subSubSection, subSubIndex) => (
-                              <Accordion key={subSubIndex}>
-                                <AccordionSummary
-                                  expandIcon={<ExpandMoreIcon style={{ color: "green" }} />}
-                                  aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
-                                  id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
-                                >
-                                  <Typography>{subSubSection.title}</Typography>
-                                </AccordionSummary>
-                                <AccordionDetails>
-                                  <Typography>{subSubSection.content}</Typography>
-                                </AccordionDetails>
-                              </Accordion>
-                            ))}
-                          </div>
-                        )}
-                      </AccordionDetails>
-                    </Accordion>
-                  ))}
-                </div>
-              )}
+                        <AccordionSummary
+                          expandIcon={
+                            <ExpandMoreIcon style={{ color: "red" }} />
+                          }
+                          aria-controls={`panel${index}-${subIndex}-content`}
+                          id={`panel${index}-${subIndex}-header`}
+                          onClick={() => {
+                            if (!selectedAccordionIndexes.includes(subIndex)) {
+                              setSelectedAccordionIndexes([
+                                ...selectedAccordionIndexes,
+                                subIndex,
+                              ]);
+                            } else {
+                              setSelectedAccordionIndexes(
+                                selectedAccordionIndexes.filter(
+                                  (item) => item !== subIndex
+                                )
+                              );
+                            }
+                          }}
+                        >
+                          <Typography>{subSection.title}</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                          <Typography>{subSection.content}</Typography>
+                          {subSection.subSubSections && (
+                            <div>
+                              {subSection.subSubSections.map(
+                                (subSubSection, subSubIndex) => (
+                                  <Accordion key={subSubIndex}>
+                                    <AccordionSummary
+                                      expandIcon={
+                                        <ExpandMoreIcon
+                                          style={{ color: "green" }}
+                                        />
+                                      }
+                                      aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
+                                      id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
+                                    >
+                                      <Typography>
+                                        {subSubSection.title}
+                                      </Typography>
+                                    </AccordionSummary>
+                                    <AccordionDetails>
+                                      <Typography>
+                                        {subSubSection.content}
+                                      </Typography>
+                                    </AccordionDetails>
+                                  </Accordion>
+                                )
+                              )}
+                            </div>
+                          )}
+                        </AccordionDetails>
+                      </Accordion>
+                    ))}
+                  </div>
+                )}
               </AccordionDetails>
             </Accordion>
           ))}
@@ -306,15 +324,19 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                   title={section.title}
                   fields={
                     labelNamesBySection[index]?.map((labelName) => ({
-                      label: labelName,
-                      name: labelName,
+                      label: `${section.title}.${labelName}`,
+                      name: `${section.title}.${labelName}`,
                       type: "text",
                     })) || []
                   }
                   onInputChange={handleInputChange}
                 >
                   {selectedAccordionIndexes.map((selectedIndex) => {
-                    if (section && Array.isArray(section.subSections) && section.subSections.length > selectedIndex) {
+                    if (
+                      section &&
+                      Array.isArray(section.subSections) &&
+                      section.subSections.length > selectedIndex
+                    ) {
                       const subSection = section.subSections[selectedIndex];
                       if (subSection) {
                         return (
@@ -322,11 +344,13 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                             key={`nestedCard-${selectedIndex}`}
                             title={subSection.title}
                             fields={
-                              subSectionLabels[selectedIndex]?.map((labelName, labelIndex) => ({
-                                label: labelName,
-                                name: `field${labelIndex + 1}`,
-                                type: "text",
-                              })) || []
+                              subSectionLabels[selectedIndex]?.map(
+                                (labelName, labelIndex) => ({
+                                  label: `${subSection.title}.${labelName}`,
+                                  name: `field${labelIndex + 1}`,
+                                  type: "text",
+                                })
+                              ) || []
                             }
                             onInputChange={handleInputChange}
                           />
@@ -335,8 +359,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                     }
                     return null;
                   })}
-
-
                 </Card>
               ) : null
             )}
@@ -361,6 +383,15 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           }
           displayedCards={displayedCards} // Pass the filtered card data
           totalDisplayedCount={totalDisplayedCount}
+          subsectionTitles={data.reduce((acc, section, index) => {
+            if (section.subSections && activeSections.includes(index)) {
+              section.subSections.forEach((subSection) => {
+                acc.push(subSection.title);
+              });
+            }
+            return acc;
+          }, [])}
+          selectedAccordionIndexes={selectedAccordionIndexes}
         />
       )}
     </>
