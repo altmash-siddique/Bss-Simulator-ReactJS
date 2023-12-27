@@ -26,8 +26,8 @@ export const SERVICE = {
 }
 
 export const SERVICE_ORDER = {
-    V1: '/eoc/serviceOrderingManagement/v1/serviceOrder',
-    V4: '/eoc/tmf-api/serviceOrdering/v4/serviceOrder'
+    v1: '/eoc/serviceOrderingManagement/v1/serviceOrder',
+    v4: '/eoc/tmf-api/serviceOrdering/v4/serviceOrder'
 };
 
 export const SERVICE_QUALIFICATION= {
