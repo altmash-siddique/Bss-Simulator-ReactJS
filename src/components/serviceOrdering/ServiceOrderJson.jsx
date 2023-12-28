@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DownCircleOutlined } from "@ant-design/icons";
 import ReactJson from "react-json-view";
 
@@ -11,13 +11,18 @@ const ServiceOrderJson = ({
   totalDisplayedCount,
   subsectionTitles,
   selectedAccordionIndexes,
+  handleJsonData,
+  selectedVersion,
 }) => {
   console.log("Display cards", displayedCards); // View the filtered card data
   console.log("Count", totalDisplayedCount);
   console.log("Sub sections: ", subsectionTitles);
   console.log("Selected INdex", selectedAccordionIndexes);
+  console.log("Selected Version: ", selectedVersion);
 
   let title = "";
+
+  const [jsonData, setJsonData] = useState(null);
 
   const generateServiceOrderData = () => {
     const orderIds = displayedCards.map((_, index) => `${index + 1}`);
@@ -118,6 +123,15 @@ const ServiceOrderJson = ({
     const selectedSubsections = selectedAccordionIndexes.map(
       (index) => subsectionTitles[index]
     );
+
+    let orderKey = "orderItem";
+    let orderItemRelationshipKey = "orderItemRelationship";
+
+    if (selectedVersion === "v4") {
+      orderKey = "serviceOrderItem";
+      orderItemRelationshipKey = "serviceOrderItemRelationship";
+    }
+
     const subServiceOrderItems = selectedSubsections.map((subtitle, index) => {
       return {
         id: `${index + orderItems.length + 1}`,
@@ -128,7 +142,7 @@ const ServiceOrderJson = ({
             name: subtitle,
           },
         },
-        orderItemRelationship: [
+        [orderItemRelationshipKey]: [
           {
             type: "ReliesOn",
             id: mainSectionIds[title],
@@ -154,7 +168,7 @@ const ServiceOrderJson = ({
           name: "BSS Simulator Integration Environment",
         },
       ],
-      orderItem: [...orderItems, ...subServiceOrderItems],
+      [orderKey]: [...orderItems, ...subServiceOrderItems],
     };
 
     return updatedServiceOrderData;
@@ -169,6 +183,18 @@ const ServiceOrderJson = ({
   const handleShowJson = () => {
     setShowJson(!showJson);
   };
+
+  useEffect(() => {
+    const updatedJsonData = generateServiceOrderData();
+    setJsonData(updatedJsonData);
+    console.log("Json Data: ", jsonData);
+  }, [inputValues]);
+
+  useEffect(() => {
+    if (jsonData) {
+      handleJsonData(jsonData);
+    }
+  }, [jsonData, handleJsonData]);
 
   return (
     <div>

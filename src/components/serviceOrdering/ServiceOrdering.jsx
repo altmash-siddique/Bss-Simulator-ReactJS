@@ -6,10 +6,12 @@ import AccordionDetails from "@mui/material/AccordionDetails";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import Card from "./Card";
-import { Button } from "antd";
+import { Button, Menu, Dropdown } from "antd";
+import { DownOutlined } from "@ant-design/icons";
 import ServiceOrderJson from "./ServiceOrderJson";
-import { ECM_API_LAMBDA } from "../../constants/apiEndpoints";
+import { ECM_API_LAMBDA, SERVICE_ORDER } from "../../constants/apiEndpoints";
 import ApiService from "../../services/apiService";
+import { toast, Toaster } from "react-hot-toast";
 
 const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const [activeSections, setActiveSections] = useState([]);
@@ -18,6 +20,20 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const [showJson, setShowJson] = useState(false);
   const [inputValues, setInputValues] = useState({});
   const [selectedAccordionIndexes, setSelectedAccordionIndexes] = useState([]);
+  const [jsonData, setJsonData] = useState(null);
+  const [selectedVersion, setSelectedVersion] = useState("v1");
+
+  const handleMenuClick = (e) => {
+    const versionKey = e.key;
+    setSelectedVersion(versionKey);
+  };
+
+  const menu = (
+    <Menu onClick={handleMenuClick}>
+      <Menu.Item key="v1">v1</Menu.Item>
+      <Menu.Item key="v4">v4</Menu.Item>
+    </Menu>
+  );
 
   const getDisplayedCardsData = () => {
     const displayedCards = data.reduce((acc, section, index) => {
@@ -65,6 +81,75 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
 
   const handlePrepareClick = () => {
     setShowJson(!showJson);
+  };
+
+  const handleJsonData = (data) => {
+    setJsonData(data);
+  };
+
+  const handleSubmitClick = async () => {
+    try {
+      if (jsonData) {
+        const useeocApi = true; // Adjust based on your conditions
+        const endpoint = SERVICE_ORDER[selectedVersion];
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: "Basic c3ZjX2NvbXVzZXI6ZXFDU0NxPmU4Iw==",
+        };
+
+        const response = await apiService.post(
+          endpoint,
+          jsonData,
+          headers,
+          "",
+          useeocApi
+        );
+
+        console.log(response);
+
+        if (response.ok) {
+          toast.success("Submitted Order Successfully", {
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "green",
+              backgroundColor: "#B6EACD",
+              fontWeight: "bold",
+            },
+          });
+        } else {
+          toast.error("API call failed", {
+            style: {
+              border: "2px solid black",
+              padding: "16px",
+              color: "red",
+              backgroundColor: "#FEE3E1",
+              fontWeight: "bold",
+            },
+          });
+        }
+      } else {
+        toast.error("No JSON data found", {
+          style: {
+            border: "2px solid black",
+            padding: "16px",
+            color: "red",
+            backgroundColor: "#FEE3E1",
+            fontWeight: "bold",
+          },
+        });
+      }
+    } catch (error) {
+      toast.error(`An error occurred: ${error.message}`, {
+        style: {
+          border: "2px solid black",
+          padding: "16px",
+          color: "red",
+          backgroundColor: "#FEE3E1",
+          fontWeight: "bold",
+        },
+      });
+    }
   };
 
   const handleInputChange = (fieldName, value) => {
@@ -145,7 +230,17 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
 
   return (
     <>
+      <Toaster position="top-center" reverseOrder={true} />
+
       <div className="container">
+        <div className="version-dropdown-style">
+          <Dropdown overlay={menu} placement="bottomRight">
+            <Button>
+              {selectedVersion}
+              <DownOutlined />
+            </Button>
+          </Dropdown>
+        </div>
         <div className="left-section">
           {data.map((section, index) => (
             <Accordion
@@ -176,9 +271,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                         onChange={() => handleAccordionChange(subIndex, true)}
                       >
                         <AccordionSummary
-                          expandIcon={
-                            <ExpandMoreIcon style={{ color: "red" }} />
-                          }
+                          expandIcon={<ExpandMoreIcon />}
                           aria-controls={`panel${index}-${subIndex}-content`}
                           id={`panel${index}-${subIndex}-header`}
                           onClick={() => {
@@ -206,11 +299,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                                 (subSubSection, subSubIndex) => (
                                   <Accordion key={subSubIndex}>
                                     <AccordionSummary
-                                      expandIcon={
-                                        <ExpandMoreIcon
-                                          style={{ color: "green" }}
-                                        />
-                                      }
+                                      expandIcon={<ExpandMoreIcon />}
                                       aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
                                       id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
                                     >
@@ -370,6 +459,13 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
             >
               Prepare Service Order
             </Button>
+            <Button
+              shape="round"
+              className="prepare-button"
+              onClick={handleSubmitClick}
+            >
+              Submit Service Order
+            </Button>
           </div>
         </div>
       </div>
@@ -392,6 +488,8 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
             return acc;
           }, [])}
           selectedAccordionIndexes={selectedAccordionIndexes}
+          handleJsonData={handleJsonData}
+          selectedVersion={selectedVersion}
         />
       )}
     </>
