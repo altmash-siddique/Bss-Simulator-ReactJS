@@ -7,6 +7,7 @@ import AsyncMessages from '../components/asyncMsgs/AsyncMessages';
 import ChangeOrder from '../components/changeOrder/ChangeOrder';
 import { ServiceCharacterstics } from '../components/serviceOrdering/serviceCharacterstics';
 import FeasibilityInsertData from '../components/feasibilityInsertData/FeasibilityInsertData';
+import FeasibilityInnerInsertData from '../components/feasibilityInnerInsertData/FeasibilityInnerInsertData';
 
 const RouteConfig = ({ selectedEnvironment }) => (
   <Routes>
@@ -38,6 +39,10 @@ const RouteConfig = ({ selectedEnvironment }) => (
      <Route
       path="/feasibility-results"
       element={<FeasibilityInsertData />}
+    />
+    <Route
+          path= "/feasibility-line-results"
+          element={<FeasibilityInnerInsertData />}
     />
   </Routes>
 );

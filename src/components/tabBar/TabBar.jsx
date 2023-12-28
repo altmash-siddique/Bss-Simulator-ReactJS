@@ -20,19 +20,30 @@ const TabBar = () => {
   };
 
   const handleChange = (key) => {
-    setActiveKey(key);
-    navigate(key); // Update the URL when the tab changes
+    if (key !== '/') {
+      setActiveKey(key);
+      navigate(key); // Update the URL when the tab changes
+    }
   };
 
   useEffect(() => {
     setActiveKey(location.pathname);
+  
+    const updateActiveKey = () => {
+      setActiveKey(window.location.pathname);
+    };
+  
+    window.addEventListener('popstate', updateActiveKey);
+  
+    return () => {
+      window.removeEventListener('popstate', updateActiveKey);
+    };
   }, [location.pathname]);
+  
+  
+  
 
-  useEffect(() => {
-    // Update selectedEnvironmentName when selectedEnvironment changes
-    const config = getAppConfig(selectedEnvironment);
 
-  }, [selectedEnvironment]);
 
   return (
     <div>
@@ -50,6 +61,7 @@ const TabBar = () => {
             <TabPane
             tab="Feasibility Check"
             key="/feasibility"
+            className={location.pathname === '/' ? 'default-tab' : ''}
             onClick={() => handleChange('/feasibility')}
           />
           <TabPane

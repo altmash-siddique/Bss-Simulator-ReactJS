@@ -8,12 +8,11 @@ import ApiService from "../../services/apiService";
 // Import the useHistory hook from react-router-dom
 import { useNavigate } from 'react-router-dom';
 
-import FeasibilityInsertData from '../feasibilityInsertData/FeasibilityInsertData';
 
 const Feasibility = ({ selectedEnvironment }) => {
   const apiService = new ApiService(selectedEnvironment);
   const navigate = useNavigate(); // Initialize the history hook here
-  const [selectedVersion, setSelectedVersion] = useState("v1");
+  const [selectedVersion, setSelectedVersion] = useState("v2");
   const [feasibilityData, setFeasibilityData] = useState(null);
   const [loadingVerify, setLoadingVerify] = useState(false);
   const [feasibilityError, setFeasibilityError] = useState("");
@@ -114,9 +113,9 @@ const Feasibility = ({ selectedEnvironment }) => {
     }
   };
 
-  const NavigateToFeasibilityInsertData = (feasibilityData) => {
+  const NavigateToFeasibilityInsertData = (feasibilityResponseData) => {
     // Redirect to the FeasibilityInsertData page and pass the response as state
-    navigate('/feasibility-results', { state: { feasibilityData } });
+    navigate('/feasibility-results', { state: { feasibilityResponseData } });
   };
 
   

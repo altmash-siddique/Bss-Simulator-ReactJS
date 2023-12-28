@@ -1,28 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Typography } from "antd";
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate} from 'react-router-dom';
+
 import './FeasibilityInsertData.css'
 
 const { Text } = Typography;
 const FeasibilityInsertData = () => {
   const [feasibilityDataShow, setFeasibilityDataShow] = useState(true);
   const location = useLocation();
-  const feasibilityData = location.state?.feasibilityData;
+  const navigate = useNavigate();
+
+  const feasibilityData = location.state?.feasibilityResponseData;
 
   useEffect(() => {
-    // Check if the current route is '/feasibility-results'
-    setFeasibilityDataShow(location.pathname === '/feasibility-results');
-  }, [location.pathname, feasibilityData]);
+    // Check if feasibilityData exists and has serviceQualificationItem
+    const shouldShow = feasibilityData && feasibilityData.serviceQualificationItem;
+  
+    setFeasibilityDataShow(shouldShow);
+  
+    return () => {
+      setFeasibilityDataShow(false); // Reset state when unmounted
+    };
+  }, [feasibilityData]);
 
-  const InsertInnerFeasibilityData = (itemName, itemId) => {
-    // Handle click logic here
-    console.log("Item clicked:", itemName, itemId);
+  const InsertInnerFeasibilityData = (name, itemdata) => {
+   
+       // Redirect to the FeasibilityInsertData page and pass the response as state
+       navigate('/feasibility-line-results', { state: { feasibilityInnerData: feasibilityData,name, itemdata } });
+       console.log("Item clicked:", name, itemdata);
   };
 
-  if (!feasibilityDataShow || !feasibilityData || !feasibilityData.serviceQualificationItem) {
-    // Handle the case where feasibilityData or serviceQualificationItem is undefined
-    return <div>No data available</div>;
-  }
+  // if (!feasibilityDataShow || !feasibilityData || !feasibilityData.serviceQualificationItem) {
+  //   // Handle the case where feasibilityData or serviceQualificationItem is undefined
+  //   return <div>No data available</div>;
+  // }
 
   return (
     <div className="feasibility-insert-data-container">
@@ -39,14 +50,14 @@ const FeasibilityInsertData = () => {
             deliver the stated speeds.
           </div>
           <Row gutter={[16, 16]}>
-            {feasibilityData.serviceQualificationItem &&
+            {feasibilityData?.serviceQualificationItem &&
               feasibilityData.serviceQualificationItem.map(
                 (item) =>
                   item.service && (
                     <Col key={item.id} span={12}>
                       <Card
                         onClick={() =>
-                          InsertInnerFeasibilityData(item.service.name, item.id)
+                          InsertInnerFeasibilityData(item.service.name, item)
                         }
                         className="feasibilityDataserviceQualificationItem"
                       >
