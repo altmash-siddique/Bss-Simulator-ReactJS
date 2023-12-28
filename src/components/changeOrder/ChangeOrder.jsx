@@ -10,7 +10,7 @@ const ChangeOrder = () => {
   };
 
   return (
-    <Card className="card-style">
+    <Card className="change-card-style">
       <div className="centered-container">
         <div className="service-row">
           <Row gutter={[24, 24]}>

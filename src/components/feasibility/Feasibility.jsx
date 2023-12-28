@@ -2,16 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Input, Button, Checkbox, Dropdown, Menu } from "antd";
 import "./Feasibility.css"; // Import your CSS file
 import { RightOutlined } from "@ant-design/icons"; // Import an icon from Ant Design
-
 import { DownOutlined } from "@ant-design/icons";
 import { SERVICE_QUALIFICATION } from "../../constants/apiEndpoints";
 import ApiService from "../../services/apiService";
+// Import the useHistory hook from react-router-dom
+import { useNavigate } from 'react-router-dom';
+
 
 const Feasibility = ({ selectedEnvironment }) => {
   const apiService = new ApiService(selectedEnvironment);
-
-  const [selectedVersion, setSelectedVersion] = useState("v1");
-  const [feasibilityData, setFeasibilityData] = useState({});
+  const navigate = useNavigate(); // Initialize the history hook here
+  const [selectedVersion, setSelectedVersion] = useState("v2");
+  const [feasibilityData, setFeasibilityData] = useState(null);
   const [loadingVerify, setLoadingVerify] = useState(false);
   const [feasibilityError, setFeasibilityError] = useState("");
   const [hideProceedButton, setHideProceedButton] = useState(true);
@@ -44,7 +46,7 @@ const Feasibility = ({ selectedEnvironment }) => {
       const endpoint = SERVICE_QUALIFICATION[selectedVersion];
       const headers = {
         "Content-Type": "application/json",
-        Authorization: "",
+        Authorization: "Basic c3ZjX2NvbXVzZXI6ZXFDU0NxPmU4Iw==",
       };
 
       const placeData = houseNumberExtension
@@ -99,7 +101,8 @@ const Feasibility = ({ selectedEnvironment }) => {
       setLoadingVerify(false);
       setResponseID("Order Submitted Successfully id:-");
       setFeasibilityData(response);
-      // Add additional processing logic or call other functions as needed
+      NavigateToFeasibilityInsertData(response);
+      
     } catch (error) {
       setHideProceedButton(false);
       setLoadingVerify(false);
@@ -110,6 +113,10 @@ const Feasibility = ({ selectedEnvironment }) => {
     }
   };
 
+  const NavigateToFeasibilityInsertData = (feasibilityResponseData) => {
+    // Redirect to the FeasibilityInsertData page and pass the response as state
+    navigate('/feasibility-results', { state: { feasibilityResponseData } });
+  };
 
   
   const handleMenuClick = (e) => {
@@ -175,6 +182,7 @@ const Feasibility = ({ selectedEnvironment }) => {
           >
             Proceed
           </Button>
+          
         </Col>
       </Row>
       <Row gutter={[15, 15]}>

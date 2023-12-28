@@ -16,7 +16,7 @@
     /* Remove the right border between tabs */
 }
 
-.tabs-container .ant-tabs-nav .ant-tabs-tab-active {
+.tabs-container .ant-tabs-nav .ant-tabs-tab-active  {
     color: blue;
     background-color: black;
     /* Active tab background color */
@@ -30,6 +30,11 @@
 .tabs-section {
     margin-left: 30px;
   
+}
+
+.default-tab {
+    color: blue;
+    background-color: black;
 }
 
 
