@@ -233,7 +233,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       <Toaster position="top-center" reverseOrder={true} />
 
       <div className="container">
-        <div className="version-dropdown-style">
+        <div className="version-dropdown-style-service">
           <Dropdown overlay={menu} placement="bottomRight">
             <Button>
               {selectedVersion}

@@ -146,3 +146,9 @@
 .copied-text.active {
   opacity: 1;
 }
+
+.version-dropdown-style-service{
+  position: absolute;
+  top: 120px;
+  right: 20px;
+}
