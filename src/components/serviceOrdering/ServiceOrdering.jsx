@@ -14,7 +14,6 @@ import ApiService from "../../services/apiService";
 import { toast, Toaster } from "react-hot-toast";
 
 const ServiceOrdering = ({ data, selectedEnvironment }) => {
-  const [activeSections, setActiveSections] = useState([]);
   const [labelNamesBySection, setLabelNamesBySection] = useState([]);
   const [subSectionLabels, setSubSectionLabels] = useState([]);
   const [showJson, setShowJson] = useState(false);
@@ -22,6 +21,12 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const [selectedAccordionIndexes, setSelectedAccordionIndexes] = useState([]);
   const [jsonData, setJsonData] = useState(null);
   const [selectedVersion, setSelectedVersion] = useState("v1");
+  const [activeSections, setActiveSections] = useState(
+    Array(data.length).fill(false)
+  );
+  const [activeSubSections, setActiveSubSections] = useState(
+    Array(data.length).fill([])
+  );
 
   const handleMenuClick = (e) => {
     const versionKey = e.key;
@@ -163,7 +168,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     try {
       const useeocApi = false;
       const endpoint = ECM_API_LAMBDA.PATH;
-      const params = { Parameter: title };
+      const params = { Parameter: title }; // Handle subSection title
       const headers = {
         "Content-Type": "application/json",
         Authorization: "",
@@ -186,7 +191,20 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         .map((characteristic) => characteristic.id);
 
       if (isSubSection) {
-        setSubSectionLabels((prevLabels) => [...prevLabels, fetchedLabelNames]);
+        const currentSubSection = data.find(
+          (_, idx) => idx === activeSections[activeSections.length - 1]
+        );
+        if (currentSubSection && currentSubSection.subSections) {
+          const subSectionTitle = currentSubSection.subSections.find(
+            (sub) => sub.title === title
+          )?.title;
+          if (subSectionTitle) {
+            setSubSectionLabels((prevLabels) => ({
+              ...prevLabels,
+              [subSectionTitle]: fetchedLabelNames,
+            }));
+          }
+        }
       } else {
         setLabelNamesBySection((prevLabels) => [
           ...prevLabels,
@@ -198,28 +216,40 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     }
   };
 
-  const handleAccordionChange = async (index, isSubSection = false) => {
-    if (isSubSection) {
-      const subSection = (
-        data.reduce(
-          (acc, section) => acc.concat(section.subSections || []),
-          []
-        )[index] || {}
-      ).title;
+  const handleAccordionChange = async (index, subSectionIndex = null) => {
+    if (!activeSubSections[index]) {
+      setActiveSubSections({ ...activeSubSections, [index]: [] });
+    }
 
+    if (subSectionIndex !== null) {
+      const subSection = (data[index]?.subSections || [])[subSectionIndex]
+        ?.title;
       if (subSection) {
-        await fetchData(subSection, true);
+        const isActive = activeSubSections[index]?.includes(subSectionIndex);
+        const updatedSubSections = { ...activeSubSections };
+
+        if (!isActive) {
+          await fetchData(subSection, true);
+          updatedSubSections[index] =
+            updatedSubSections[index].concat(subSectionIndex);
+          setActiveSubSections(updatedSubSections);
+        } else {
+          updatedSubSections[index] = updatedSubSections[index].filter(
+            (item) => item !== subSectionIndex
+          );
+          setActiveSubSections(updatedSubSections);
+        }
       }
     } else {
-      // Logic for handling section accordion clicks
-      if (activeSections.includes(index)) {
+      const isExpanded = activeSections.includes(index);
+
+      if (isExpanded) {
         setActiveSections(
           activeSections.filter((activeIndex) => activeIndex !== index)
         );
       } else {
         setActiveSections([...activeSections, index]);
 
-        // Fetch section labels only when its accordion is expanded
         const section = data.find((_, idx) => idx === index);
         if (section && section.title) {
           await fetchData(section.title);
@@ -227,6 +257,10 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       }
     }
   };
+
+  console.log("Sub Section Label Names:", subSectionLabels);
+  console.log("Label Names by section ", labelNamesBySection);
+  console.log("selected index", selectedAccordionIndexes);
 
   return (
     <>
@@ -261,68 +295,69 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
               >
                 <Typography>{section.title}</Typography>
               </AccordionSummary>
-              <AccordionDetails>
-                <Typography>{section.content}</Typography>
-                {section.subSections && (
-                  <div>
-                    {section.subSections.map((subSection, subIndex) => (
-                      <Accordion
-                        key={subIndex}
-                        onChange={() => handleAccordionChange(subIndex, true)}
-                      >
-                        <AccordionSummary
-                          expandIcon={<ExpandMoreIcon />}
-                          aria-controls={`panel${index}-${subIndex}-content`}
-                          id={`panel${index}-${subIndex}-header`}
-                          onClick={() => {
-                            if (!selectedAccordionIndexes.includes(subIndex)) {
-                              setSelectedAccordionIndexes([
-                                ...selectedAccordionIndexes,
-                                subIndex,
-                              ]);
-                            } else {
-                              setSelectedAccordionIndexes(
-                                selectedAccordionIndexes.filter(
-                                  (item) => item !== subIndex
-                                )
-                              );
-                            }
-                          }}
+              {activeSections.includes(index) &&
+                section.subSections &&
+                section.subSections.length > 0 && (
+                  <AccordionDetails>
+                    <div>
+                      {section.subSections.map((subSection, subIndex) => (
+                        <Accordion
+                          key={subIndex}
+                          onChange={() =>
+                            handleAccordionChange(index, subIndex)
+                          }
                         >
-                          <Typography>{subSection.title}</Typography>
-                        </AccordionSummary>
-                        <AccordionDetails>
-                          <Typography>{subSection.content}</Typography>
-                          {subSection.subSubSections && (
-                            <div>
-                              {subSection.subSubSections.map(
-                                (subSubSection, subSubIndex) => (
-                                  <Accordion key={subSubIndex}>
-                                    <AccordionSummary
-                                      expandIcon={<ExpandMoreIcon />}
-                                      aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
-                                      id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
-                                    >
-                                      <Typography>
-                                        {subSubSection.title}
-                                      </Typography>
-                                    </AccordionSummary>
-                                    <AccordionDetails>
-                                      <Typography>
-                                        {subSubSection.content}
-                                      </Typography>
-                                    </AccordionDetails>
-                                  </Accordion>
-                                )
-                              )}
-                            </div>
-                          )}
-                        </AccordionDetails>
-                      </Accordion>
-                    ))}
-                  </div>
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls={`panel${index}-${subIndex}-content`}
+                            id={`panel${index}-${subIndex}-header`}
+                            onClick={() => {
+                              if (
+                                !selectedAccordionIndexes.includes(subIndex)
+                              ) {
+                                setSelectedAccordionIndexes([
+                                  ...selectedAccordionIndexes,
+                                  subIndex,
+                                ]);
+                              } else {
+                                setSelectedAccordionIndexes(
+                                  selectedAccordionIndexes.filter(
+                                    (item) => item !== subIndex
+                                  )
+                                );
+                              }
+                            }}
+                          >
+                            <Typography>{subSection.title}</Typography>
+                          </AccordionSummary>
+                          {subSection.subSubSections &&
+                            subSection.subSubSections.length > 0 && (
+                              <AccordionDetails>
+                                <Typography>{subSection.content}</Typography>
+                                <div>
+                                  {subSection.subSubSections.map(
+                                    (subSubSection, subSubIndex) => (
+                                      <Accordion key={subSubIndex}>
+                                        <AccordionSummary
+                                          expandIcon={<ExpandMoreIcon />}
+                                          aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
+                                          id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
+                                        >
+                                          <Typography>
+                                            {subSubSection.title}
+                                          </Typography>
+                                        </AccordionSummary>
+                                      </Accordion>
+                                    )
+                                  )}
+                                </div>
+                              </AccordionDetails>
+                            )}
+                        </Accordion>
+                      ))}
+                    </div>
+                  </AccordionDetails>
                 )}
-              </AccordionDetails>
             </Accordion>
           ))}
         </div>
@@ -420,34 +455,24 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                   }
                   onInputChange={handleInputChange}
                 >
-                  {selectedAccordionIndexes.map((selectedIndex) => {
-                    if (
-                      section &&
-                      Array.isArray(section.subSections) &&
-                      section.subSections.length > selectedIndex
-                    ) {
-                      const subSection = section.subSections[selectedIndex];
-                      if (subSection) {
-                        return (
+                  {section.subSections &&
+                    section.subSections.map(
+                      (subSection, subIndex) =>
+                        activeSubSections[index]?.includes(subIndex) && ( // Check if this subsection is active
                           <Card
-                            key={`nestedCard-${selectedIndex}`}
+                            key={`nestedCard-${subIndex}`}
                             title={subSection.title}
-                            fields={
-                              subSectionLabels[selectedIndex]?.map(
-                                (labelName, labelIndex) => ({
-                                  label: `${subSection.title}.${labelName}`,
-                                  name: `field${labelIndex + 1}`,
-                                  type: "text",
-                                })
-                              ) || []
-                            }
+                            fields={(
+                              subSectionLabels[subSection.title] || []
+                            ).map((labelName, labelIndex) => ({
+                              label: `${subSection.title}.${labelName}`,
+                              name: `field${labelIndex + 1}`,
+                              type: "text",
+                            }))}
                             onInputChange={handleInputChange}
                           />
-                        );
-                      }
-                    }
-                    return null;
-                  })}
+                        )
+                    )}
                 </Card>
               ) : null
             )}
