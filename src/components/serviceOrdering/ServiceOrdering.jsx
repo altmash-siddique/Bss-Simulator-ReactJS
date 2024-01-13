@@ -12,9 +12,9 @@ import ServiceOrderJson from "./ServiceOrderJson";
 import { ECM_API_LAMBDA, SERVICE_ORDER } from "../../constants/apiEndpoints";
 import ApiService from "../../services/apiService";
 import { toast, Toaster } from "react-hot-toast";
+import Modal from "antd/lib/modal/Modal";
 
 const ServiceOrdering = ({ data, selectedEnvironment }) => {
-  const [labelNamesBySection, setLabelNamesBySection] = useState([]);
   const [subSectionLabels, setSubSectionLabels] = useState([]);
   const [showJson, setShowJson] = useState(false);
   const [inputValues, setInputValues] = useState({});
@@ -26,6 +26,52 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   );
   const [activeSubSections, setActiveSubSections] = useState(
     Array(data.length).fill([])
+  );
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalCount, setModalCount] = useState(1);
+  const [sectionData, setSectionData] = useState({});
+
+  const openModal = () => {
+    setModalVisible(true);
+  };
+
+  const handleModalConfirm = async (index) => {
+    try {
+      await fetchData("CFS_P2MP_ETH");
+
+      setModalVisible(false);
+
+      setActiveSections((prevActiveSections) => {
+        const updatedSections = [...prevActiveSections];
+        for (let i = 0; i < modalCount; i++) {
+          if (!updatedSections.includes(index)) {
+            updatedSections.push(index);
+          }
+        }
+        return updatedSections;
+      });
+
+      await Promise.all(Array(modalCount).fill(fetchData("CFS_P2MP_ETH")));
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  const modalContent = (
+    <Modal
+      title="Specify Count"
+      open={modalVisible}
+      onOk={handleModalConfirm}
+      onCancel={() => setModalVisible(false)}
+    >
+      <p>Specify the count for CFS_P2MP_ETH:</p>
+      <input
+        type="number"
+        value={modalCount}
+        onChange={(e) => setModalCount(parseInt(e.target.value, 10))}
+      />
+    </Modal>
   );
 
   const handleMenuClick = (e) => {
@@ -46,7 +92,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         const additionalCardData = {
           title: section.title,
           fields:
-            labelNamesBySection[index]?.map((labelName) => ({
+            sectionData[section.title]?.map((labelName) => ({
               label: labelName,
               name: labelName,
               type: "text",
@@ -162,6 +208,8 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       ...prevValues,
       [fieldName]: value,
     }));
+
+    console.log("Input Values service ordering:", inputValues);
   };
 
   const fetchData = async (title, isSubSection = false) => {
@@ -206,10 +254,10 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           }
         }
       } else {
-        setLabelNamesBySection((prevLabels) => [
-          ...prevLabels,
-          fetchedLabelNames,
-        ]);
+        setSectionData((prevData) => ({
+          ...prevData,
+          [title]: fetchedLabelNames,
+        }));
       }
     } catch (error) {
       console.error("Error:", error);
@@ -218,7 +266,16 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
 
   const handleAccordionChange = async (index, subSectionIndex = null) => {
     if (!activeSubSections[index]) {
-      setActiveSubSections({ ...activeSubSections, [index]: [] });
+      setActiveSubSections((prevActiveSubSections) => ({
+        ...prevActiveSubSections,
+        [index]: [],
+      }));
+    }
+
+    const isCfsP2mpEth = data[index]?.title === "CFS_P2MP_ETH";
+
+    if (isCfsP2mpEth && !modalVisible) {
+      openModal(index);
     }
 
     if (subSectionIndex !== null) {
@@ -244,11 +301,14 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       const isExpanded = activeSections.includes(index);
 
       if (isExpanded) {
-        setActiveSections(
-          activeSections.filter((activeIndex) => activeIndex !== index)
+        setActiveSections((prevActiveSections) =>
+          prevActiveSections.filter((activeIndex) => activeIndex !== index)
         );
       } else {
-        setActiveSections([...activeSections, index]);
+        setActiveSections((prevActiveSections) => [
+          ...prevActiveSections,
+          index,
+        ]);
 
         const section = data.find((_, idx) => idx === index);
         if (section && section.title) {
@@ -259,7 +319,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   };
 
   console.log("Sub Section Label Names:", subSectionLabels);
-  console.log("Label Names by section ", labelNamesBySection);
   console.log("selected index", selectedAccordionIndexes);
 
   return (
@@ -443,37 +502,57 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
             {data.map((section, index) =>
               section.displayAdditionalCard &&
               activeSections.includes(index) ? (
-                <Card
-                  key={`additionalCard-${index}`}
-                  title={section.title}
-                  fields={
-                    labelNamesBySection[index]?.map((labelName) => ({
-                      label: `${section.title}.${labelName}`,
-                      name: `${section.title}.${labelName}`,
-                      type: "text",
-                    })) || []
-                  }
-                  onInputChange={handleInputChange}
-                >
-                  {section.subSections &&
-                    section.subSections.map(
-                      (subSection, subIndex) =>
-                        activeSubSections[index]?.includes(subIndex) && ( // Check if this subsection is active
-                          <Card
-                            key={`nestedCard-${subIndex}`}
-                            title={subSection.title}
-                            fields={(
-                              subSectionLabels[subSection.title] || []
-                            ).map((labelName, labelIndex) => ({
-                              label: `${subSection.title}.${labelName}`,
-                              name: `field${labelIndex + 1}`,
-                              type: "text",
-                            }))}
-                            onInputChange={handleInputChange}
-                          />
-                        )
-                    )}
-                </Card>
+                <React.Fragment key={`additionalCard-${index}`}>
+                  {section.title === "CFS_P2MP_ETH" ? (
+                    // Handle "CFS_P2MP_ETH" differently
+                    Array.from({ length: modalCount }, (_, i) => (
+                      <Card
+                        key={`additionalCard-${index}-${i}`}
+                        title={section.title}
+                        fields={
+                          sectionData[section.title]?.map((labelName) => ({
+                            label: `${section.title}.${labelName}`,
+                            name: `${section.title}.${labelName}`,
+                            type: "text",
+                          })) || []
+                        }
+                        onInputChange={handleInputChange}
+                      />
+                    ))
+                  ) : (
+                    // Keep the existing logic for other sections
+                    <Card
+                      title={section.title}
+                      fields={
+                        sectionData[section.title]?.map((labelName) => ({
+                          label: `${section.title}.${labelName}`,
+                          name: `${section.title}.${labelName}`,
+                          type: "text",
+                        })) || []
+                      }
+                      onInputChange={handleInputChange}
+                    >
+                      {section.subSections &&
+                        section.subSections.map(
+                          (subSection, subIndex) =>
+                            activeSubSections[index]?.includes(subIndex) && (
+                              <Card
+                                key={`nestedCard-${subIndex}`}
+                                title={subSection.title}
+                                fields={(
+                                  subSectionLabels[subSection.title] || []
+                                ).map((labelName, labelIndex) => ({
+                                  label: `${subSection.title}.${labelName}`,
+                                  name: `field${labelIndex + 1}`,
+                                  type: "text",
+                                }))}
+                                onInputChange={handleInputChange}
+                              />
+                            )
+                        )}
+                    </Card>
+                  )}
+                </React.Fragment>
               ) : null
             )}
 
@@ -497,7 +576,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       {showJson && (
         <ServiceOrderJson
           inputValues={inputValues} // Make sure inputValues are properly passed
-          labelNamesBySection={labelNamesBySection}
           subSectionLabels={subSectionLabels}
           serviceSpecName={
             data.find((_, idx) => activeSections.includes(idx))?.title
@@ -517,6 +595,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           selectedVersion={selectedVersion}
         />
       )}
+      {modalContent}
     </>
   );
 };

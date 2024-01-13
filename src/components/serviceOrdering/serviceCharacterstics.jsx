@@ -14,17 +14,6 @@ export const ServiceCharacterstics = [
       },
       {
         title: "CFS_VOICE_TRANSPORT",
-        subSubSections: [
-          {
-            title: "CFS_VOICE_DEVICE",
-          },
-          {
-            title: "CFS_FMC",
-          },
-          {
-            title: "CFS_VOICE_PRF_BASIC",
-          },
-        ],
       },
     ],
   },
@@ -141,7 +130,7 @@ export const ServiceCharacterstics = [
     displayAdditionalCard: true,
   },
   {
-    title: "CFS_P2MP_ETH ",
+    title: "CFS_P2MP_ETH",
     displayAdditionalCard: true,
   },
 ];

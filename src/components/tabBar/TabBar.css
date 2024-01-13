@@ -37,4 +37,7 @@
     background-color: black;
 }
 
-
+.white-tab {
+    background-color: #000; /* Inactive tab color */
+    color: #fff; /* Text color for inactive tab */
+  }

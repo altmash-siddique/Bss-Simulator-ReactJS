@@ -4,7 +4,6 @@ import ReactJson from "react-json-view";
 
 const ServiceOrderJson = ({
   inputValues,
-  labelNamesBySection,
   subSectionLabels,
   serviceSpecName,
   displayedCards,
@@ -175,7 +174,6 @@ const ServiceOrderJson = ({
   };
 
   console.log(inputValues);
-  console.log(labelNamesBySection[0][0]);
   console.log(serviceSpecName);
 
   const [showJson, setShowJson] = useState(true);
