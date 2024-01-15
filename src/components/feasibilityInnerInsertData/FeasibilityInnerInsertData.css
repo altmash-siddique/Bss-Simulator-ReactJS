@@ -1,10 +1,28 @@
 .background-inner-wrapper {
     height: 90vh;
     background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
+    font-size:  18px;
 }
 
 .feasibility-inner-card {
     margin: 10px;
     padding: 15px;
     background: #fff;
+    margin-top:20px;
+    width: 30%;
+    font-size:  18px;
   }
+  .feasibility-row {
+    margin-top: 30px;
+    margin-left: 20px;
+  }
+  .feasibilityDataInnerDataSideHeader {
+    font-weight: bold;
+    font-size:  18px;
+  }
+
+ 
+  .feasibility-inner-card.selected {
+    border: 2px solid black; /* Adjust the border color and other styles as needed */
+  }
+  
