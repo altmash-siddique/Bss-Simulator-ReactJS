@@ -70,26 +70,73 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
 
   const handlePrepareClick = () => {
     let jsonStruc = json;
+    jsonStruc.orderItem[0].service.serviceCharacteristic = [];
     setChangeOrderRes(null);
     //serviceId
     jsonStruc.orderItem[0].service.id = srApiRes.id;
     //serviceCharacteristics
-    jsonStruc.orderItem[0].service.serviceCharacteristic[0].value =
-      serviceBandwidthUp;
-    jsonStruc.orderItem[0].service.serviceCharacteristic[1].value =
-      serviceBandwidthDown;
-    jsonStruc.orderItem[0].service.serviceCharacteristic[2].value =
-      minimumBandwidthDown;
-    jsonStruc.orderItem[0].service.serviceCharacteristic[3].value =
-      minimumBandwidthUp;
-    jsonStruc.orderItem[0].service.serviceCharacteristic[4].value =
-      promisedBandwidthUp;
-    jsonStruc.orderItem[0].service.serviceCharacteristic[5].value =
-      promisedBandwidthDown;
+    const serviceData = srApiRes.serviceCharacteristics;
+    const serviceCharacteristisLength = serviceData.length;
+    for (let x = 0; x < serviceCharacteristisLength; x++) {
+      if (
+        serviceData[x].name === "minimumBandwidthDown" &&
+        serviceData[x].value !== minimumBandwidthDown
+      ) {
+        jsonStruc.orderItem[0].service.serviceCharacteristic.push({
+          name: "minimumBandwidthDown",
+          value: minimumBandwidthDown,
+          valueType: "number",
+        });
+      } else if (
+        serviceData[x].name === "minimumBandwidthUp" &&
+        serviceData[x].value !== minimumBandwidthUp
+      ) {
+        jsonStruc.orderItem[0].service.serviceCharacteristic.push({
+          name: "minimumBandwidthUp",
+          value: minimumBandwidthUp,
+          valueType: "number",
+        });
+      } else if (
+        serviceData[x].name === "promisedBandwidthDown" &&
+        serviceData[x].value !== promisedBandwidthDown
+      ) {
+        jsonStruc.orderItem[0].service.serviceCharacteristic.push({
+          name: "promisedBandwidthDown",
+          value: promisedBandwidthDown,
+          valueType: "number",
+        });
+      } else if (
+        serviceData[x].name === "promisedBandwidthUp" &&
+        serviceData[x].value !== promisedBandwidthUp
+      ) {
+        jsonStruc.orderItem[0].service.serviceCharacteristic.push({
+          name: "promisedBandwidthUp",
+          value: promisedBandwidthUp,
+          valueType: "number",
+        });
+      } else if (
+        serviceData[x].name === "serviceBandwidthDown" &&
+        serviceData[x].value !== serviceBandwidthDown
+      ) {
+        jsonStruc.orderItem[0].service.serviceCharacteristic.push({
+          name: "serviceBandwidthDown",
+          value: serviceBandwidthDown,
+          valueType: "number",
+        });
+      } else if (
+        serviceData[x].name === "serviceBandwidthUp" &&
+        serviceData[x].value !== serviceBandwidthUp
+      ) {
+        jsonStruc.orderItem[0].service.serviceCharacteristic.push({
+          name: "serviceBandwidthUp",
+          value: serviceBandwidthUp,
+          valueType: "number",
+        });
+      }
+    }
     //serviceSpecification
     jsonStruc.orderItem[0].service.serviceSpecification.id = srApiRes.name;
     jsonStruc.orderItem[0].service.serviceSpecification.name = srApiRes.name;
-
     //requestID
     let randomNumber =
       Math.floor(Math.random() * (999999999 - 100000000 + 1)) + 100000000;
@@ -99,7 +146,6 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
     const tenDaysAhead = new Date(currentDate);
     tenDaysAhead.setDate(currentDate.getDate() + 10);
     jsonStruc.requestedCompletionDate = tenDaysAhead;
-    console.log(jsonStruc);
     setJsonData({ jsonStruc });
     setJsonDiv(true);
     setSubmitOrder(true);
@@ -165,8 +211,8 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                 : "none",
           }}
         >
-          <Row style={{ alignItems: "center" }}>
-            <Col style={{ marginLeft: "3vw" }} span={8}>
+          <Row className="alignItems-Center">
+            <Col className="marginLeft-3" span={8}>
               <h4>promisedBandwidthDown</h4>
             </Col>
             <Col span={4}>
@@ -177,17 +223,17 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                 // className="service-textbox"
               ></Input>
             </Col>
-            <Col style={{ paddingLeft: "2vw" }} span={8}>
+            <Col className="paddingLeft-2" span={8}>
               <Select
-                style={{ width: "80%" }}
+                className="width-80"
                 value={promisedBandwidthDown}
                 onChange={handlePromisedBandwidthDownChangeSelect}
                 options={selectOptions}
               ></Select>
             </Col>
           </Row>
-          <Row style={{ alignItems: "center" }}>
-            <Col style={{ marginLeft: "3vw" }} span={8}>
+          <Row className="alignItems-Center">
+            <Col className="marginLeft-3" span={8}>
               <h4>promisedBandwidthUp</h4>
             </Col>
             <Col span={4}>
@@ -198,17 +244,17 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                 // className="service-textbox"
               ></Input>
             </Col>
-            <Col style={{ paddingLeft: "2vw" }} span={8}>
+            <Col className="paddingLeft-2" span={8}>
               <Select
-                style={{ width: "80%" }}
+                className="width-80"
                 value={promisedBandwidthUp}
                 onChange={handlePromisedBandwidthUpChangeSelect}
                 options={selectOptions}
               ></Select>
             </Col>
           </Row>
-          <Row style={{ alignItems: "center" }}>
-            <Col style={{ marginLeft: "3vw" }} span={8}>
+          <Row className="alignItems-Center">
+            <Col className="marginLeft-3" span={8}>
               <h4>minimumBandwidthDown</h4>
             </Col>
             <Col span={4}>
@@ -219,17 +265,17 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                 // className="service-textbox"
               ></Input>
             </Col>
-            <Col style={{ paddingLeft: "2vw" }} span={8}>
+            <Col className="paddingLeft-2" span={8}>
               <Select
-                style={{ width: "80%" }}
+                className="width-80"
                 value={minimumBandwidthDown}
                 onChange={handleMinimumBandwidthDownChangeSelect}
                 options={selectOptions}
               ></Select>
             </Col>
           </Row>
-          <Row style={{ alignItems: "center" }}>
-            <Col style={{ marginLeft: "3vw" }} span={8}>
+          <Row className="alignItems-Center">
+            <Col className="marginLeft-3" span={8}>
               <h4>minimumBandwidthUp</h4>
             </Col>
             <Col span={4}>
@@ -240,17 +286,17 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                 // className="service-textbox"
               ></Input>
             </Col>
-            <Col style={{ paddingLeft: "2vw" }} span={8}>
+            <Col className="paddingLeft-2" span={8}>
               <Select
-                style={{ width: "80%" }}
+                className="width-80"
                 value={minimumBandwidthUp}
                 onChange={handleMinimumBandwidthUpChangeSelect}
                 options={selectOptions}
               ></Select>
             </Col>
           </Row>
-          <Row style={{ alignItems: "center" }}>
-            <Col style={{ marginLeft: "3vw" }} span={8}>
+          <Row className="alignItems-Center">
+            <Col className="marginLeft-3" span={8}>
               <h4>serviceBandwidthDown</h4>
             </Col>
             <Col span={4}>
@@ -261,17 +307,17 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                 // className="service-textbox"
               ></Input>
             </Col>
-            <Col style={{ paddingLeft: "2vw" }} span={8}>
+            <Col className="paddingLeft-2" span={8}>
               <Select
-                style={{ width: "80%" }}
+                className="width-80"
                 value={serviceBandwidthDown}
                 onChange={handleserviceBandwidthDownChangeSelect}
                 options={selectOptions}
               ></Select>
             </Col>
           </Row>
-          <Row style={{ marginTop: "0vh", alignItems: "center" }}>
-            <Col style={{ marginLeft: "3vw" }} span={8}>
+          <Row className="alignItems-Center">
+            <Col className="marginLeft-3" span={8}>
               <h4>serviceBandwidthUp</h4>
             </Col>
             <Col span={4}>
@@ -282,9 +328,9 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                 // className="service-textbox"
               ></Input>
             </Col>
-            <Col style={{ paddingLeft: "2vw" }} span={8}>
+            <Col className="paddingLeft-2" span={8}>
               <Select
-                style={{ width: "80%" }}
+                className="width-80"
                 value={serviceBandwidthUp}
                 onChange={handleserviceBandwidthUpChangeSelect}
                 options={selectOptions}
@@ -335,7 +381,7 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
         bordered={true}
         className="async-inner-card"
       >
-        <div style={{ marginTop: "0vh" }}>
+        <div>
           <div className="card-json">
             <h2 style={{ alignItems: "end" }}>
               {!changeOrderRes ? (

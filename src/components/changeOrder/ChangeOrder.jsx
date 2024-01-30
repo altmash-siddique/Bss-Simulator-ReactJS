@@ -1,22 +1,10 @@
 import React, { useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Input,
-  Button,
-  Radio,
-  DatePicker,
-  Alert,
-  Dropdown,
-  Spin,
-  Menu,
-} from "antd";
-import { DownOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Input, Button, Radio, Alert, Spin } from "antd";
 import "./ChangeOrder.css"; // Import your CSS file
 import { SERVICE } from "../../constants/apiEndpoints";
 import ApiService from "../../services/apiService";
 import PostProcessor from "./postProcessor";
+import PostProcessorDel from "./postProcessorDel";
 
 const ChangeOrder = ({ selectedEnvironment }) => {
   const [selectedRadio, setSelectedRadio] = useState(null);
@@ -39,8 +27,11 @@ const ChangeOrder = ({ selectedEnvironment }) => {
     setServiceId(e.target.value);
   };
   const handleSubmitButtonClick = async (e) => {
+    setDisplay(false);
+    setSrApiRes({});
     if (selectedRadio === null) {
       setErrorMsg("Invalid Inputs");
+      setDisplay(true);
     } else {
       setLoadingVerify(true);
       const useeocApi = true; // Adjust based on your conditions
@@ -61,20 +52,10 @@ const ChangeOrder = ({ selectedEnvironment }) => {
         .catch((error) => {
           setErrorMsg(error.message);
           setLoadingVerify(false);
+          setDisplay(true);
         });
     }
   };
-  const menu = (
-    <Menu>
-      <Menu.Item key="1">New line</Menu.Item>
-      <Menu.Item key="2">Change</Menu.Item>
-      <Menu.Item key="3">Disconnect</Menu.Item>
-      <Menu.Item key="4">Cancel</Menu.Item>
-      <Menu.Item key="5">Revise</Menu.Item>
-      <Menu.Item key="6">Migrate out</Menu.Item>
-      <Menu.Item key="7">New Delay</Menu.Item>
-    </Menu>
-  );
   return (
     <Card className="change-card-style">
       <div className="centered-container">
@@ -136,7 +117,9 @@ const ChangeOrder = ({ selectedEnvironment }) => {
         </Row>
       </div>
       <Alert
-        style={{ display: errorMsg != "" ? "flex" : "none", marginTop: "30px" }}
+        style={{ display: errorMsg !== "" ? "flex" : "none" }}
+        id="error-message"
+        className="marginTop"
         message="Error"
         description={errorMsg}
         type="error"
@@ -145,7 +128,11 @@ const ChangeOrder = ({ selectedEnvironment }) => {
       />
       <Col
         style={{
-          display: display ? (selectedRadio === 1 ? "flex" : "none") : "none",
+          display: display
+            ? selectedRadio === 1 && errorMsg === ""
+              ? "flex"
+              : "none"
+            : "none",
         }}
       >
         <div className="centered-container">
@@ -193,31 +180,25 @@ const ChangeOrder = ({ selectedEnvironment }) => {
         <div className="centered-container">
           <Row gutter={[16, 16]} className="centered-container">
             <Col xs={24} sm={24} md={24} lg={24} className="custom-col-cha">
-              <Card title="DISCONNECT" bordered={false}>
-                {/* Nested Card */}
-                <Card bordered={false} className="async-inner-card">
-                  <Row>
-                    <Col xs={24} sm={24} md={24} lg={8} className="col-item">
-                      <h5>Error Code:</h5>
-                      <Input placeholder="Error Code" />
-                    </Col>
-                    <Col xs={24} sm={24} md={24} lg={10}>
-                      <h5>Order Note:</h5>
-                      {/* Textarea */}
-                      <Input.TextArea placeholder="Textarea" rows={4} />
-                    </Col>
-                  </Row>
-                  <Row>
-                    <Col xs={24} sm={24} md={24} lg={8} className="col-item">
-                      <h5>Comment Code:</h5>
-                      <Input placeholder="Comment Code" />
-                    </Col>
-                    <Col xs={24} sm={24} md={24} lg={10}>
-                      <h5>Service Group:</h5>
-                      <Input placeholder="Service Group" />
-                    </Col>
-                  </Row>
-                </Card>
+              <Card
+                title={
+                  srApiRes.name ? (
+                    <h3>Selected CFS will be Disconnected</h3>
+                  ) : (
+                    ""
+                  )
+                }
+                bordered={false}
+              >
+                {" "}
+                {srApiRes.name !== null ? (
+                  <PostProcessorDel
+                    selectedEnvironment={selectedEnvironment}
+                    srApiRes={srApiRes}
+                  ></PostProcessorDel>
+                ) : (
+                  ""
+                )}
               </Card>
             </Col>
           </Row>

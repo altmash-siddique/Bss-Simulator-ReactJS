@@ -6,7 +6,25 @@
   margin: auto;
   min-height: 120vh;
 }
-
+.marginTop {
+  margin-top: 30px;
+}
+.width-80 {
+  width: 80%;
+}
+.paddingLeft-2 {
+  padding-left: 2vw;
+}
+.alignItems-Center {
+  align-items: center;
+}
+.marginLeft-3 {
+  margin-left: 3vw;
+}
+.treeData {
+  font-weight: 500;
+  font-size: 15px;
+}
 .prepare-button-change {
   color: #fff;
   background-color: black;
@@ -15,7 +33,9 @@
   /* width: 100%; */
   height: 40px !important;
 }
-
+.border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.354) !important;
+}
 .centered-container {
   display: flex;
   flex-direction: column;
