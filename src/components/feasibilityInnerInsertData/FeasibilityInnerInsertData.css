@@ -1,5 +1,5 @@
 .background-inner-wrapper {
-    height: 90vh;
+  height: 75vh;
     background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
     font-size:  18px;
 }
@@ -8,8 +8,7 @@
     margin: 10px;
     padding: 15px;
     background: #fff;
-    margin-top:20px;
-    width: 30%;
+    width: 40%;
     font-size:  18px;
   }
   .feasibility-row {
@@ -25,4 +24,41 @@
   .feasibility-inner-card.selected {
     border: 2px solid black; /* Adjust the border color and other styles as needed */
   }
+
+  .outer-card {
+    margin: 10px;
+    padding: 15px;
+    background: #fff;
+    margin-top:20px;
+    width: 60%;
+    font-size:  18px;
+    height: 40%;
+  }
+
+  .proceed-button-inner {
+    color: #fff;
+    background-color: black;
+    border: 1px solid #000;
+    border-radius: 30px;
+    width: 50%;
+    height: 40px !important;
+  }
+  .card-json {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 12px;
+  }
   
+  .card-json h2 {
+    text-align: center;
+  }
+  
+  .card h2 {
+    font-size: 16px; /* Adjust the font size as needed */
+  }
