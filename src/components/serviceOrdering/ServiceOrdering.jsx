@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./ServiceOrdering.css";
 import Accordion from "@mui/material/Accordion";
 import AccordionSummary from "@mui/material/AccordionSummary";
@@ -13,6 +13,7 @@ import { ECM_API_LAMBDA, SERVICE_ORDER } from "../../constants/apiEndpoints";
 import ApiService from "../../services/apiService";
 import { toast, Toaster } from "react-hot-toast";
 import Modal from "antd/lib/modal/Modal";
+import CloseIcon from "@mui/icons-material/Close";
 
 const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const [subSectionLabels, setSubSectionLabels] = useState([]);
@@ -31,6 +32,9 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalCount, setModalCount] = useState(1);
   const [sectionData, setSectionData] = useState({});
+
+  const [lastActiveCardIndex, setLastActiveCardIndex] = useState(null);
+  const lastActiveCardRef = useRef(null);
 
   const openModal = () => {
     setModalVisible(true);
@@ -85,6 +89,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       <Menu.Item key="v4">v4</Menu.Item>
     </Menu>
   );
+
 
   const getDisplayedCardsData = () => {
     const displayedCards = data.reduce((acc, section, index) => {
@@ -264,6 +269,14 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     }
   };
 
+  const handleCloseCard = (index) => {
+    // Collapse the Accordion
+    setActiveSections((prevActiveSections) =>
+      prevActiveSections.filter((activeIndex) => activeIndex !== index)
+    );
+    // Optionally, you can also hide the card by updating your state or using any other mechanism.
+  };
+
   const handleAccordionChange = async (index, subSectionIndex = null) => {
     if (!activeSubSections[index]) {
       setActiveSubSections((prevActiveSubSections) => ({
@@ -294,30 +307,34 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           updatedSubSections[index] = updatedSubSections[index].filter(
             (item) => item !== subSectionIndex
           );
-          setActiveSubSections(updatedSubSections);
+          setLastActiveCardIndex(index);
+          console.log("Last Active", lastActiveCardIndex)
         }
       }
     } else {
-      const isExpanded = activeSections.includes(index);
+      // Always expand the Accordion
+      setActiveSections((prevActiveSections) => [...prevActiveSections, index]);
 
-      if (isExpanded) {
-        setActiveSections((prevActiveSections) =>
-          prevActiveSections.filter((activeIndex) => activeIndex !== index)
-        );
-      } else {
-        setActiveSections((prevActiveSections) => [
-          ...prevActiveSections,
-          index,
-        ]);
-
-        const section = data.find((_, idx) => idx === index);
-        if (section && section.title) {
-          await fetchData(section.title);
-        }
+      const section = data.find((_, idx) => idx === index);
+      if (section && section.title) {
+        await fetchData(section.title);
       }
+
+      setLastActiveCardIndex(index);
+      if (lastActiveCardRef.current) {
+        lastActiveCardRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+      setLastActiveCardIndex(index);
     }
   };
 
+  useEffect(() => {
+    // Update the ref after the lastActiveCardIndex is set
+    lastActiveCardRef.current = document.getElementById(`card-${lastActiveCardIndex}`);
+  }, [lastActiveCardIndex]);
+
+  console.log("Last Ref", lastActiveCardRef);
+  console.log("Last Active", lastActiveCardIndex)
   console.log("Sub Section Label Names:", subSectionLabels);
   console.log("selected index", selectedAccordionIndexes);
 
@@ -508,7 +525,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                     Array.from({ length: modalCount }, (_, i) => (
                       <Card
                         key={`additionalCard-${index}-${i}`}
-                        title={section.title}
+                        title={section.title + (i + 1)}
                         fields={
                           sectionData[section.title]?.map((labelName) => ({
                             label: `${section.title}.${labelName}`,
@@ -520,7 +537,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                       />
                     ))
                   ) : (
-                    // Keep the existing logic for other sections
                     <Card
                       title={section.title}
                       fields={
@@ -531,7 +547,18 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                         })) || []
                       }
                       onInputChange={handleInputChange}
+                      index={index}
+                      highlight={lastActiveCardIndex === index}
+                      id={`card-${index}`}
                     >
+                      <CloseIcon
+                        style={{
+                          marginLeft: "90%",
+                          marginTop: "-30%",
+                          float: "inline-start",
+                        }}
+                        onClick={() => handleCloseCard(index)}
+                      />
                       {section.subSections &&
                         section.subSections.map(
                           (subSection, subIndex) =>

@@ -24,6 +24,7 @@
 }
 
 .card {
+  position: relative;
   background-color: #fff;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -152,3 +153,23 @@
   top: 150px;
   right: 20px;
 }
+
+.card.highlight {
+  border: 2px solid #3498db; /* Choose your preferred highlight color */
+  box-shadow: 0 0 10px rgba(52, 152, 219, 0.5); /* Choose your preferred box shadow */
+  transition: border 0.3s, box-shadow 0.3s;
+}
+
+.ribbon {
+  position: absolute;
+  top: 25px;
+  right: 0px; /* Adjust the right offset as needed */
+  background-color: #3498db;
+  color: #fff;
+  padding: 5px 10px;
+  transform: rotate(45deg);
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1;
+}
+

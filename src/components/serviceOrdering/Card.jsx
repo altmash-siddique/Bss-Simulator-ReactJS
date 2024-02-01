@@ -1,6 +1,6 @@
 import React from "react";
 
-const Card = ({ title, fields, children, onInputChange }) => {
+const Card = ({ title, fields, children, onInputChange, highlight }) => {
   const handleInputChange = (e, fieldName) => {
     const { value } = e.target;
     onInputChange(fieldName, value);
@@ -12,7 +12,8 @@ const Card = ({ title, fields, children, onInputChange }) => {
   };
 
   return (
-    <div className="card">
+    <div className={`card ${highlight ? 'highlight' : ''}`}>
+      {highlight && <div className="ribbon">Added Now</div>}
       <h2>{title}</h2>
       {fields.map((field, index) => (
         <div className="input-group" key={index}>
