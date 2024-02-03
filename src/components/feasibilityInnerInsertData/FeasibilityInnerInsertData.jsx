@@ -1,7 +1,10 @@
 import React , { useState, useEffect } from 'react';
-import { Card, Spin, Row } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { Card, Spin, Row, Button} from 'antd';
+import { useLocation, useNavigate } from 'react-router-dom';
 import './FeasibilityInnerInsertData.css'
+import ReactJson from "react-json-view";
+import { toast, Toaster } from "react-hot-toast";
+import { DownCircleOutlined } from "@ant-design/icons";
 
 const FeasibilityInnerInsertData = () => {
     const [feasibilitylineDataShow, setFeasibilityLineDataShow] = useState(true);
@@ -9,11 +12,114 @@ const FeasibilityInnerInsertData = () => {
     const [loading, setLoading] = useState(true);
  
   const location = useLocation();
+  const navigate = useNavigate();
   const { feasibilityInnerData, name, itemdata } = location.state || {};
   const feasibilitylineData = feasibilityInnerData;
 
-  const [orderType, setOrderType] = useState({ type: '' });
   const [accessServiceId, setAccessServiceId] = useState('');
+  const [showJson, setShowJson] = useState(true);
+  const [connectionPointAddressJsonData, setConnectionPointAddressJsonData] = useState({});
+  const [installationAddressJsonData, setInstallationAddressJsonData] = useState({
+   
+  });
+  const [combinedAddressJsonData, setCombinedAddressJsonData] = useState({
+    connectionPoint: {},
+    installation: {},
+  });
+ 
+  const [orderType, setOrderType] = useState({
+    type: '',
+    Message: '',
+  });
+
+  const [showCFSName, setShowCFSName] = useState({
+    VDSL: false,
+    Fiber: false,
+  });
+
+ 
+  useEffect(() => {
+    // Check if both connectionPointAddressJsonData and installationAddressJsonData have values
+    if ((Object.keys(connectionPointAddressJsonData).length > 0) && (Object.keys(installationAddressJsonData).length > 0)) {
+      setCombinedAddressJsonData(() => ({
+        connectionPoint: { ...connectionPointAddressJsonData },
+        installation: { ...installationAddressJsonData },
+      }));
+   }
+  }, [connectionPointAddressJsonData, installationAddressJsonData]);
+
+  useEffect(() => {
+    if((Object.keys(combinedAddressJsonData.connectionPoint).length > 0) && (Object.keys(combinedAddressJsonData.installation).length > 0)){
+      console.log(combinedAddressJsonData);
+      navigate('/service-ordering', { state: { feasibilityPlaceData: combinedAddressJsonData } });
+    }
+   
+  }, [combinedAddressJsonData]);
+
+  const handleProceedClick = () => {
+    if (orderType.type === '') {
+      setOrderType({
+        ...orderType,
+        Message: 'Select Existing or Available Line',
+      });
+      toast.error('Select Existing or Available Line', {
+        style: {
+          border: '2px solid black',
+          padding: '16px',
+          color: 'red',
+          backgroundColor: '#FEE3E1',
+          fontWeight: 'bold',
+        },
+      });
+      return;
+    }
+  
+    // Rest of your logic...
+    setShowCFSName({
+      ...showCFSName,
+      VDSL: orderType.type.includes('Copper'),
+      Fiber: orderType.type.includes('Fiber'),
+    });
+    setAccessServiceId(accessServiceId);
+  
+    if (feasibilitylineData) {
+      feasibilitylineData?.serviceQualificationItem.forEach((item) => {
+        var servicequalificationname = item?.service.name;
+        var place = item?.service['place'];
+  
+        if (servicequalificationname === 'CFS_IP_ACCESS' || servicequalificationname === 'CFS_ACCESS') {
+          place?.forEach((placeDataforServiceOrder) => {
+            if (placeDataforServiceOrder.role === 'alternateInstallationAddress') {
+              setInstallationAddressJsonData(() => ({
+                ...placeDataforServiceOrder
+              }));
+            }
+          });
+        } else {
+          place?.forEach((placeDataConnforServiceOrder) => {
+            if (placeDataConnforServiceOrder.role === 'connectionPointOption') {
+              setConnectionPointAddressJsonData(() => ({
+                ...placeDataConnforServiceOrder
+               }));
+            }
+          });
+        }
+       
+      });
+      
+    } else {
+      toast.error("Can't move to Service Order as no place Data", {
+        style: {
+          border: '2px solid black',
+          padding: '16px',
+          color: 'red',
+          backgroundColor: '#FEE3E1',
+          fontWeight: 'bold',
+        },
+      });
+    }
+  };
+  
 
   const handleSelectedFeasibilityLineType = (type, id, accessId) => {
     if (type !== orderType.type) {
@@ -27,8 +133,14 @@ const FeasibilityInnerInsertData = () => {
     }
   };
 
+  const handleShowJson = () => {
+    setShowJson(!showJson);
+  };
+  
+
 
   
+
 
 useEffect(() => {
     // Check if feasibilityData exists and has serviceQualificationItem
@@ -59,7 +171,9 @@ useEffect(() => {
         <div>
           {feasibilitylineDataShow && (
             <div className="background-inner-wrapper">
-            <Row className="feasibility-row">
+          
+          <Row className="feasibility-row">
+          <Card className="outer-card">
             <Card
                 title={place['@type']}
                 className={`feasibility-inner-card ${orderType.type === type ? 'selected' : ''}`}
@@ -107,11 +221,59 @@ useEffect(() => {
                     {place['expectedDeliveryDays']}
                   </p>
                 )}
+            </Card>
+            </Card>
+            </Row>
+            <Row className="feasibility-row">
+              <Card  className="outer-card">
+              <Button
+              shape="round"
+              className="proceed-button-inner"
+              onClick={handleProceedClick}
+            >
+              Proceed Service Order
+            </Button>
               </Card>
             </Row>
-              
-            </div>
+        </div>
           )}
+        
+        {/* {showJson && ( */}
+          <div>
+            <Row className="feasibility-row">
+            <div>
+              <div className="card-json">
+                <h2>
+                  Generated Feasibility JSON{" "}
+                  <DownCircleOutlined onClick={handleShowJson} />
+                </h2>
+                {showJson && (
+                  <ReactJson
+                    src={JSON.parse(
+                      JSON.stringify(feasibilitylineData)
+                    )}
+                    theme="monokai-light"
+                    style={{
+                      fontWeight: "bold",
+                      fontFamily: "monospace",
+                      letterSpacing: "1px",
+                      padding: 24,
+                      minHeight: 280,
+                      width: "80%",
+                      marginLeft: "auto",
+                      marginRight: "auto",
+                    }}
+                  />
+                )}
+              </div>
+           </div>
+
+            </Row>
+        
+           </div> 
+           
+         
+                  
         </div>
       );
     };

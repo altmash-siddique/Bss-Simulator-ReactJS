@@ -13,8 +13,8 @@ import { ECM_API_LAMBDA, SERVICE_ORDER } from "../../constants/apiEndpoints";
 import ApiService from "../../services/apiService";
 import { toast, Toaster } from "react-hot-toast";
 import Modal from "antd/lib/modal/Modal";
-import CloseIcon from "@mui/icons-material/Close";
-
+import AddIcon from "@mui/icons-material/Add";
+import { useLocation } from "react-router-dom";
 const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const [subSectionLabels, setSubSectionLabels] = useState([]);
   const [showJson, setShowJson] = useState(false);
@@ -36,8 +36,43 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const [lastActiveCardIndex, setLastActiveCardIndex] = useState(null);
   const lastActiveCardRef = useRef(null);
 
+  const location = useLocation();
+  const { feasibilityPlaceData } = location.state || {};
+  const [localInitialValues, setLocalInitialValues] = useState({});
   const openModal = () => {
     setModalVisible(true);
+  };
+
+  useEffect(() => {
+    if (feasibilityPlaceData && feasibilityPlaceData.installation) {
+      setLocalInitialValues(() => ({
+        ...generateFieldInitialValues(
+          "install",
+          feasibilityPlaceData.installation
+        ),
+      }));
+    }
+
+    if (feasibilityPlaceData && feasibilityPlaceData.connectionPoint) {
+      setLocalInitialValues(() => ({
+        ...generateFieldInitialValues(
+          "connect",
+          feasibilityPlaceData.connectionPoint
+        ),
+      }));
+    }
+    // console.log("localInitialValues:", localInitialValues);
+  }, [feasibilityPlaceData]);
+
+  const generateFieldInitialValues = (prefix, data) => {
+    if (!data) {
+      return {};
+    }
+
+    return Object.keys(data).reduce((acc, key) => {
+      acc[`${prefix}_${key}`] = data[key];
+      return acc;
+    }, {});
   };
 
   const handleModalConfirm = async (index) => {
@@ -90,7 +125,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     </Menu>
   );
 
-
   const getDisplayedCardsData = () => {
     const displayedCards = data.reduce((acc, section, index) => {
       if (section.displayAdditionalCard && activeSections.includes(index)) {
@@ -129,7 +163,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     return { displayedCards, totalDisplayedCount: displayedCards.length };
   };
 
-  console.log("Selected Accordion", selectedAccordionIndexes);
+  // console.log("Selected Accordion", selectedAccordionIndexes);
 
   const { displayedCards, totalDisplayedCount } = getDisplayedCardsData();
 
@@ -160,8 +194,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           "",
           useeocApi
         );
-
-        console.log(response);
 
         if (response.ok) {
           toast.success("Submitted Order Successfully", {
@@ -214,7 +246,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       [fieldName]: value,
     }));
 
-    console.log("Input Values service ordering:", inputValues);
+    // console.log("Input Values service ordering:", inputValues);
   };
 
   const fetchData = async (title, isSubSection = false) => {
@@ -308,12 +340,23 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
             (item) => item !== subSectionIndex
           );
           setLastActiveCardIndex(index);
-          console.log("Last Active", lastActiveCardIndex)
+          // console.log("Last Active", lastActiveCardIndex);
         }
       }
     } else {
       // Always expand the Accordion
-      setActiveSections((prevActiveSections) => [...prevActiveSections, index]);
+      const isCollapseAction = activeSections.includes(index);
+
+      // Always expand the Accordion
+      setActiveSections((prevActiveSections) => {
+        const updatedSections = isCollapseAction
+          ? prevActiveSections.filter((activeIndex) => activeIndex !== index)
+          : [...prevActiveSections, index];
+
+        return updatedSections;
+      });
+
+      // setActiveSections((prevActiveSections) => [...prevActiveSections, index]);
 
       const section = data.find((_, idx) => idx === index);
       if (section && section.title) {
@@ -330,13 +373,26 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
 
   useEffect(() => {
     // Update the ref after the lastActiveCardIndex is set
-    lastActiveCardRef.current = document.getElementById(`card-${lastActiveCardIndex}`);
+    lastActiveCardRef.current = document.getElementById(
+      `card-${lastActiveCardIndex}`
+    );
   }, [lastActiveCardIndex]);
 
-  console.log("Last Ref", lastActiveCardRef);
-  console.log("Last Active", lastActiveCardIndex)
-  console.log("Sub Section Label Names:", subSectionLabels);
-  console.log("selected index", selectedAccordionIndexes);
+  const handleCloseSubSectionCard = (subSectionIndex) => {
+    setActiveSubSections((prevActiveSubSections) => {
+      const updatedSubSections = { ...prevActiveSubSections };
+      updatedSubSections[lastActiveCardIndex] = updatedSubSections[
+        lastActiveCardIndex
+      ].filter((item) => item !== subSectionIndex);
+      return updatedSubSections;
+    });
+  };
+
+  // console.log("Last Ref", lastActiveCardRef);
+  // console.log("Last Active", lastActiveCardIndex);
+  // console.log("Sub Section Label Names:", subSectionLabels);
+  // console.log("selected index", selectedAccordionIndexes);
+  // console.log("Initial Valies", localInitialValues);
 
   return (
     <>
@@ -351,91 +407,93 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
             </Button>
           </Dropdown>
         </div>
-        <div className="left-section">
-          {data.map((section, index) => (
-            <Accordion
-              key={index}
-              expanded={activeSections.includes(index)}
-              onChange={() => handleAccordionChange(index)}
-              style={{
-                backgroundColor: "#333",
-                color: "white",
-                paddingTop: "5px",
-                paddingBottom: "5px",
-              }}
-            >
-              <AccordionSummary
-                expandIcon={<ExpandMoreIcon style={{ color: "white" }} />}
-                aria-controls={`panel${index}-content`}
-                id={`panel${index}-header`}
+        <div className="left-section-wrapper">
+          <div className="left-section">
+            {data.map((section, index) => (
+              <Accordion
+                key={index}
+                expanded={activeSections.includes(index)}
+                onChange={() => handleAccordionChange(index)}
+                style={{
+                  backgroundColor: "#333",
+                  color: "white",
+                  paddingTop: "5px",
+                  paddingBottom: "5px",
+                }}
               >
-                <Typography>{section.title}</Typography>
-              </AccordionSummary>
-              {activeSections.includes(index) &&
-                section.subSections &&
-                section.subSections.length > 0 && (
-                  <AccordionDetails>
-                    <div>
-                      {section.subSections.map((subSection, subIndex) => (
-                        <Accordion
-                          key={subIndex}
-                          onChange={() =>
-                            handleAccordionChange(index, subIndex)
-                          }
-                        >
-                          <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls={`panel${index}-${subIndex}-content`}
-                            id={`panel${index}-${subIndex}-header`}
-                            onClick={() => {
-                              if (
-                                !selectedAccordionIndexes.includes(subIndex)
-                              ) {
-                                setSelectedAccordionIndexes([
-                                  ...selectedAccordionIndexes,
-                                  subIndex,
-                                ]);
-                              } else {
-                                setSelectedAccordionIndexes(
-                                  selectedAccordionIndexes.filter(
-                                    (item) => item !== subIndex
-                                  )
-                                );
-                              }
-                            }}
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon style={{ color: "white" }} />}
+                  aria-controls={`panel${index}-content`}
+                  id={`panel${index}-header`}
+                >
+                  <Typography>{section.title}</Typography>
+                </AccordionSummary>
+                {activeSections.includes(index) &&
+                  section.subSections &&
+                  section.subSections.length > 0 && (
+                    <AccordionDetails>
+                      <div>
+                        {section.subSections.map((subSection, subIndex) => (
+                          <Accordion
+                            key={subIndex}
+                            onChange={() =>
+                              handleAccordionChange(index, subIndex)
+                            }
                           >
-                            <Typography>{subSection.title}</Typography>
-                          </AccordionSummary>
-                          {subSection.subSubSections &&
-                            subSection.subSubSections.length > 0 && (
-                              <AccordionDetails>
-                                <Typography>{subSection.content}</Typography>
-                                <div>
-                                  {subSection.subSubSections.map(
-                                    (subSubSection, subSubIndex) => (
-                                      <Accordion key={subSubIndex}>
-                                        <AccordionSummary
-                                          expandIcon={<ExpandMoreIcon />}
-                                          aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
-                                          id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
-                                        >
-                                          <Typography>
-                                            {subSubSection.title}
-                                          </Typography>
-                                        </AccordionSummary>
-                                      </Accordion>
+                            <AccordionSummary
+                              expandIcon={<AddIcon />}
+                              aria-controls={`panel${index}-${subIndex}-content`}
+                              id={`panel${index}-${subIndex}-header`}
+                              onClick={() => {
+                                if (
+                                  !selectedAccordionIndexes.includes(subIndex)
+                                ) {
+                                  setSelectedAccordionIndexes([
+                                    ...selectedAccordionIndexes,
+                                    subIndex,
+                                  ]);
+                                } else {
+                                  setSelectedAccordionIndexes(
+                                    selectedAccordionIndexes.filter(
+                                      (item) => item !== subIndex
                                     )
-                                  )}
-                                </div>
-                              </AccordionDetails>
-                            )}
-                        </Accordion>
-                      ))}
-                    </div>
-                  </AccordionDetails>
-                )}
-            </Accordion>
-          ))}
+                                  );
+                                }
+                              }}
+                            >
+                              <Typography>{subSection.title}</Typography>
+                            </AccordionSummary>
+                            {subSection.subSubSections &&
+                              subSection.subSubSections.length > 0 && (
+                                <AccordionDetails>
+                                  <Typography>{subSection.content}</Typography>
+                                  <div>
+                                    {subSection.subSubSections.map(
+                                      (subSubSection, subSubIndex) => (
+                                        <Accordion key={subSubIndex}>
+                                          <AccordionSummary
+                                            expandIcon={<ExpandMoreIcon />}
+                                            aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
+                                            id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
+                                          >
+                                            <Typography>
+                                              {subSubSection.title}
+                                            </Typography>
+                                          </AccordionSummary>
+                                        </Accordion>
+                                      )
+                                    )}
+                                  </div>
+                                </AccordionDetails>
+                              )}
+                          </Accordion>
+                        ))}
+                      </div>
+                    </AccordionDetails>
+                  )}
+              </Accordion>
+            ))}
+          </div>
         </div>
 
         <div className="right-section">
@@ -449,71 +507,167 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
             <Card
               title="Site Contact"
               fields={[
-                { label: "Type", name: "site_type", type: "text" },
-                { label: "First Name", name: "site_firstname", type: "text" },
-                { label: "Last Name", name: "site_lastname", type: "text" },
+                {
+                  label: "Type",
+                  name: "site_type",
+                  type: "text",
+                  placeHolder: "ContactParty",
+                },
+                {
+                  label: "First Name",
+                  name: "site_firstname",
+                  type: "text",
+                  placeHolder: "Harald",
+                },
+                {
+                  label: "Last Name",
+                  name: "site_lastname",
+                  type: "text",
+                  placeHolder: "Van Kampen",
+                },
                 {
                   label: "Alternate Phone Number",
                   name: "site_altPhNum1",
                   type: "number",
+                  placeHolder: "0611459399",
                 },
-                { label: "Phone Number", name: "site_phNum", type: "number" },
+                {
+                  label: "Phone Number",
+                  name: "site_phNum",
+                  type: "number",
+                  placeHolder: "0201201201",
+                },
                 {
                   label: "Alternate Phone Number",
                   name: "site_altPhNum2",
                   type: "number",
+                  placeHolder: "0201201202",
                 },
-                { label: "Email", name: "site_email", type: "number" },
+                {
+                  label: "Email",
+                  name: "site_email",
+                  type: "number",
+                  placeHolder: "harald.van.kampen@tele",
+                },
               ]}
               onInputChange={handleInputChange}
+              localInitialValues={localInitialValues}
             />
             <Card
               title="Installation Address"
               fields={[
-                { label: "Type", name: "install_type", type: "text" },
-                { label: "street", name: "install_street", type: "text" },
+                {
+                  label: "Type",
+                  name: "install_type",
+                  type: "text",
+                  placeHolder: "GeaographicAddress",
+                },
+                {
+                  label: "street",
+                  name: "install_street",
+                  type: "text",
+                  placeHolder: "Jan van Galenstraat",
+                },
                 {
                   label: "houseNumber",
                   name: "install_houseNumber",
                   type: "number",
+                  placeHolder: "",
                 },
                 {
                   label: "houseNumberExtension",
                   name: "install_houseNumberExtension",
                   type: "number",
+                  placeHolder: "",
                 },
-                { label: "postcode", name: "install_postcode", type: "number" },
-                { label: "city", name: "install_city", type: "text" },
-                { label: "country", name: "install_country", type: "text" },
+                {
+                  label: "postcode",
+                  name: "install_postcode",
+                  type: "number",
+                  placeHolder: "",
+                },
+                {
+                  label: "city",
+                  name: "install_city",
+                  type: "text",
+                  placeHolder: "Haarlem",
+                },
+                {
+                  label: "country",
+                  name: "install_country",
+                  type: "text",
+                  placeHolder: "Netherlands",
+                },
               ]}
               onInputChange={handleInputChange}
+              localInitialValues={localInitialValues}
             />
             <Card
               title="Connection Point Address"
               fields={[
-                { label: "Type", name: "connect_type", type: "text" },
-                { label: "street", name: "connect_street", type: "text" },
+                {
+                  label: "Type",
+                  name: "connect_@type",
+                  type: "text",
+                  placeHolder: "",
+                },
+                {
+                  label: "street",
+                  name: "connect_street",
+                  type: "text",
+                  placeHolder: "Jan van Galenstraat",
+                },
                 {
                   label: "houseNumber",
                   name: "connect_houseNumber",
                   type: "number",
+                  placeHolder: "",
                 },
                 {
                   label: "houseNumberExtension",
                   name: "connect_houseNumberExtension",
                   type: "number",
+                  placeHolder: "",
                 },
-                { label: "postcode", name: "connect_postcode", type: "number" },
-                { label: "city", name: "connect_city", type: "text" },
-                { label: "country", name: "connect_country", type: "text" },
+                {
+                  label: "postcode",
+                  name: "connect_postcode",
+                  type: "number",
+                  placeHolder: "",
+                },
+                {
+                  label: "city",
+                  name: "connect_city",
+                  type: "text",
+                  placeHolder: "Haarlem",
+                },
+                {
+                  label: "country",
+                  name: "connect_country",
+                  type: "text",
+                  placeHolder: "Netherlands",
+                },
                 {
                   label: "connectionPointIdentifier",
                   name: "connect_connectionPointIdentifier",
                   type: "text",
+                  placeHolder: "",
                 },
-                { label: "nlType", name: "connect_nlType", type: "text" },
+                {
+                  label: "nlType",
+                  name: "connect_nlType",
+                  type: "text",
+                  placeHolder: "",
+                },
+                {
+                  label: "accessServiceId",
+                  name: "connect_accessServiceId",
+                  type: "text",
+                  placeHolder: "",
+                },
               ]}
               onInputChange={handleInputChange}
+              localInitialValues={localInitialValues}
             />
 
             {data.map((section, index) =>
@@ -550,15 +704,8 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                       index={index}
                       highlight={lastActiveCardIndex === index}
                       id={`card-${index}`}
+                      onCloseClick={handleCloseCard}
                     >
-                      <CloseIcon
-                        style={{
-                          marginLeft: "90%",
-                          marginTop: "-30%",
-                          float: "inline-start",
-                        }}
-                        onClick={() => handleCloseCard(index)}
-                      />
                       {section.subSections &&
                         section.subSections.map(
                           (subSection, subIndex) =>
@@ -573,7 +720,11 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                                   name: `field${labelIndex + 1}`,
                                   type: "text",
                                 }))}
+                                index={subIndex}
                                 onInputChange={handleInputChange}
+                                onCloseClick={() =>
+                                  handleCloseSubSectionCard(subIndex)
+                                }
                               />
                             )
                         )}
@@ -620,6 +771,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           selectedAccordionIndexes={selectedAccordionIndexes}
           handleJsonData={handleJsonData}
           selectedVersion={selectedVersion}
+          localInitialValues={localInitialValues}
         />
       )}
       {modalContent}

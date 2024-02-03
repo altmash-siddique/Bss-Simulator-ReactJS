@@ -1,6 +1,16 @@
 import React from "react";
+import CloseIcon from "@mui/icons-material/Close";
 
-const Card = ({ title, fields, children, onInputChange, highlight }) => {
+const Card = ({
+  title,
+  fields,
+  children,
+  onInputChange,
+  highlight,
+  index,
+  onCloseClick,
+  localInitialValues,
+}) => {
   const handleInputChange = (e, fieldName) => {
     const { value } = e.target;
     onInputChange(fieldName, value);
@@ -11,9 +21,20 @@ const Card = ({ title, fields, children, onInputChange, highlight }) => {
     return separatorIndex !== -1 ? label.substring(separatorIndex + 1) : label;
   };
 
+  const handleCloseClick = () => {
+    if (onCloseClick) {
+      onCloseClick(index);
+    }
+  };
+  console.log("Card initial values", localInitialValues);
+  // console.log(fields)
+
   return (
-    <div className={`card ${highlight ? 'highlight' : ''}`}>
+    <div className={`card ${highlight ? "highlight" : ""}`}>
       {highlight && <div className="ribbon">Added Now</div>}
+      {onCloseClick && (
+        <CloseIcon className="close-icon" onClick={handleCloseClick} />
+      )}
       <h2>{title}</h2>
       {fields.map((field, index) => (
         <div className="input-group" key={index}>
@@ -25,9 +46,10 @@ const Card = ({ title, fields, children, onInputChange, highlight }) => {
           </label>
           <input
             className="input-field"
-            type={field.type}
             id={field.name}
             name={field.name}
+            value={localInitialValues?.[field.name]}
+            placeholder={field.placeHolder}
             onChange={(e) => handleInputChange(e, field.name)}
           />
         </div>

@@ -8,6 +8,12 @@
   flex: 0;
   padding: 20px;
   background-color: #333;
+  overflow-y: auto; /* Enable vertical scrolling when content overflows */
+  max-height: calc(90vh - 40px);
+}
+.left-section-wrapper {
+  height: 80vh;
+  overflow: hidden;
 }
 
 .right-section {
@@ -15,7 +21,6 @@
   padding: 20px;
   max-height: 80vh;
   overflow-y: auto;
-
   display: flex;
   flex-direction: column;
 }
@@ -148,7 +153,7 @@
   opacity: 1;
 }
 
-.version-dropdown-style-service{
+.version-dropdown-style-service {
   position: absolute;
   top: 150px;
   right: 20px;
@@ -173,3 +178,14 @@
   z-index: 1;
 }
 
+.close-icon {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  color: #777; /* Adjust the color as needed */
+}
+
+.close-icon:hover {
+  color: #333; /* Adjust the hover color as needed */
+}

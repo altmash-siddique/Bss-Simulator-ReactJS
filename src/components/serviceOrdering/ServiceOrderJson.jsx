@@ -12,13 +12,8 @@ const ServiceOrderJson = ({
   selectedAccordionIndexes,
   handleJsonData,
   selectedVersion,
+  localInitialValues,
 }) => {
-  console.log("Display cards", displayedCards); // View the filtered card data
-  console.log("Count", totalDisplayedCount);
-  console.log("Sub sections: ", subsectionTitles);
-  console.log("Selected INdex", selectedAccordionIndexes);
-  console.log("Selected Version: ", selectedVersion);
-
   let title = "";
 
   const [jsonData, setJsonData] = useState(null);
@@ -72,44 +67,125 @@ const ServiceOrderJson = ({
           serviceCharacteristic,
           relatedParty: [
             {
-              "@type": inputValues.site_type || "",
-              role: "SiteContact",
-              id: "C_1702883888043",
-              firstName: inputValues.site_firstName || "",
-              lastName: inputValues.site_lastName || "",
-              phoneNumber: inputValues.site_phNum || "",
-              alternatePhoneNumber: inputValues.site_altPhNum1 || "",
-              mobileNumber: inputValues.site_altPhNum2 || "",
-              email: inputValues.site_email || "",
+              "@type":
+                localInitialValues?.["site_type"] ||
+                inputValues.site_type ||
+                "",
+              role:
+                localInitialValues?.["site_role"] ||
+                inputValues.site_role ||
+                "",
+              id: localInitialValues?.["site_id"] || inputValues.site_id || "",
+              firstName:
+                localInitialValues?.["site_firstName"] ||
+                inputValues.site_firstName ||
+                "",
+              lastName:
+                localInitialValues?.["site_lastName"] ||
+                inputValues.site_lastName ||
+                "",
+              phoneNumber:
+                localInitialValues?.["site_phNum"] ||
+                inputValues.site_phNum ||
+                "",
+              alternatePhoneNumber:
+                localInitialValues?.["site_altPhNum1"] ||
+                inputValues.site_altPhNum1 ||
+                "",
+              mobileNumber:
+                localInitialValues?.["site_altPhNum2"] ||
+                inputValues.site_altPhNum2 ||
+                "",
+              email:
+                localInitialValues?.["site_email"] ||
+                inputValues.site_email ||
+                "",
             },
           ],
           place: [
             {
-              "@type": inputValues.install_type || "",
-              role: "InstallationAddress",
-              id: "",
-              street: inputValues.install_street || "",
-              houseNumber: inputValues.install_houseNumber || "",
+              "@type":
+                localInitialValues?.["install_type"] ||
+                inputValues.install_type ||
+                "",
+              role:
+                localInitialValues?.["install_role"] ||
+                inputValues.install_role ||
+                "",
+              id:
+                localInitialValues?.["install_id"] ||
+                inputValues.install_id ||
+                "",
+              street:
+                localInitialValues?.["install_street"] ||
+                inputValues.install_street ||
+                "",
+              houseNumber:
+                localInitialValues?.["install_houseNumber"] ||
+                inputValues.install_houseNumber ||
+                "",
               houseNumberExtension:
-                inputValues.install_houseNumberExtension || "",
-              postcode: inputValues.install_postcode || "",
-              city: inputValues.install_city || "",
-              country: inputValues.install_country || "",
+                localInitialValues?.["install_houseNumberExtension"] ||
+                inputValues.install_houseNumberExtension ||
+                "",
+              postcode:
+                localInitialValues?.["install_postcode"] ||
+                inputValues.install_postcode ||
+                "",
+              city:
+                localInitialValues?.["install_city"] ||
+                inputValues.install_city ||
+                "",
+              country:
+                localInitialValues?.["install_country"] ||
+                inputValues.install_country ||
+                "",
             },
             {
-              "@type": inputValues.connect_type || "",
-              role: "ConnectionPoint",
-              id: "",
-              street: inputValues.connect_street || "",
-              houseNumber: inputValues.connect_houseNumber || "",
+              "@type":
+                localInitialValues?.["connect_@type"] ||
+                inputValues.connect_type ||
+                "",
+              role:
+                localInitialValues?.["connect_role"] ||
+                inputValues.connect_role ||
+                "",
+              id:
+                localInitialValues?.["connect_id"] ||
+                inputValues.connect_id ||
+                "",
+              street:
+                localInitialValues?.["connect_street"] ||
+                inputValues.connect_street ||
+                "",
+              houseNumber:
+                localInitialValues?.["connect_houseNumber"] ||
+                inputValues.connect_houseNumber ||
+                "",
               houseNumberExtension:
-                inputValues.connect_houseNumberExtension || "",
-              postcode: inputValues.connect_postcode || "",
-              city: inputValues.connect_city || "",
-              country: inputValues.connect_country || "",
+                localInitialValues?.["connect_houseNumberExtension"] ||
+                inputValues.connect_houseNumberExtension ||
+                "",
+              postcode:
+                localInitialValues?.["connect_postcode"] ||
+                inputValues.connect_postcode ||
+                "",
+              city:
+                localInitialValues?.["connect_city"] ||
+                inputValues.connect_city ||
+                "",
+              country:
+                localInitialValues?.["connect_country"] ||
+                inputValues.connect_country ||
+                "",
               connectionPointIdentifier:
-                inputValues.connect_connectionPointIdentifier || "",
-              nlType: inputValues.connect_nlType || "",
+                localInitialValues?.["connect_connectionPointIdentifier"] ||
+                inputValues.connect_connectionPointIdentifier ||
+                "",
+              nlType:
+                localInitialValues?.["connect_nlType"] ||
+                inputValues.connect_nlType ||
+                "",
             },
           ],
           serviceSpecification: {
@@ -172,10 +248,6 @@ const ServiceOrderJson = ({
 
     return updatedServiceOrderData;
   };
-
-  console.log(inputValues);
-  console.log(serviceSpecName);
-
   const [showJson, setShowJson] = useState(true);
 
   const handleShowJson = () => {
@@ -185,7 +257,6 @@ const ServiceOrderJson = ({
   useEffect(() => {
     const updatedJsonData = generateServiceOrderData();
     setJsonData(updatedJsonData);
-    console.log("Json Data: ", jsonData);
   }, [inputValues]);
 
   useEffect(() => {
