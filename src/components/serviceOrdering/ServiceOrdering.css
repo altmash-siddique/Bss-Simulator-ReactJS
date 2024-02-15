@@ -10,9 +10,10 @@
   background-color: #333;
   overflow-y: auto; /* Enable vertical scrolling when content overflows */
   max-height: calc(90vh - 40px);
+  height: 90vh;
 }
 .left-section-wrapper {
-  height: 80vh;
+  height: auto;
   overflow: hidden;
 }
 

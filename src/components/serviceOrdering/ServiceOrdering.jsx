@@ -35,6 +35,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
 
   const [lastActiveCardIndex, setLastActiveCardIndex] = useState(null);
   const lastActiveCardRef = useRef(null);
+  const [submitResponse, setSubmitResponse] = useState(null);
 
   const location = useLocation();
   const { feasibilityPlaceData } = location.state || {};
@@ -42,6 +43,8 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   const openModal = () => {
     setModalVisible(true);
   };
+
+  const [submissionResponseModalVisible, setSubmissionResponseModalVisible] = useState(false);
 
   useEffect(() => {
     if (feasibilityPlaceData && feasibilityPlaceData.installation) {
@@ -93,7 +96,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
 
       await Promise.all(Array(modalCount).fill(fetchData("CFS_P2MP_ETH")));
     } catch (error) {
-      console.error("Error:", error);
+      // console.error("Error:", error);
     }
   };
 
@@ -137,35 +140,52 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
               type: "text",
             })) || [],
         };
-
+  
         const nestedCardCount = selectedAccordionIndexes.reduce(
           (nestedAcc, selectedIndex) => {
             if (
               section &&
               Array.isArray(section.subSections) &&
               section.subSections.length > selectedIndex
+              
             ) {
+              // console.log("if executed")
               const subSection = section.subSections[selectedIndex];
+              // console.log(subSection)
+              // console.log(subSectionLabels)
               if (subSection) {
-                nestedAcc += subSectionLabels[selectedIndex]?.length || 0;
+                const subSectionTitle = subSection.title;
+                nestedAcc += subSectionLabels[subSectionTitle]?.length || 0;
+              
+                // Include fields data for sub-sections
+                subSectionLabels[subSectionTitle]?.forEach((fieldLabel) => {
+                  additionalCardData.fields.push({
+                    label: subSectionTitle + "." + fieldLabel,
+                    name: subSectionTitle + "." +  fieldLabel,
+                    type: "text",
+                  });
+                });
               }
             }
             return nestedAcc;
           },
           0
         );
-
+  
         acc.push({ ...additionalCardData, nestedCardCount });
       }
       return acc;
     }, []);
-
+  
     return { displayedCards, totalDisplayedCount: displayedCards.length };
   };
+  
 
   // console.log("Selected Accordion", selectedAccordionIndexes);
 
   const { displayedCards, totalDisplayedCount } = getDisplayedCardsData();
+
+  // console.log("displayed Cards service", displayedCards)
 
   const apiService = new ApiService(selectedEnvironment);
 
@@ -195,7 +215,9 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           useeocApi
         );
 
-        if (response.ok) {
+        if (response.id) {
+          setSubmitResponse(response);
+          setSubmissionResponseModalVisible(true);
           toast.success("Submitted Order Successfully", {
             style: {
               border: "2px solid black",
@@ -241,6 +263,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   };
 
   const handleInputChange = (fieldName, value) => {
+    // console.log("fieldname", fieldName)
     setInputValues((prevValues) => ({
       ...prevValues,
       [fieldName]: value,
@@ -297,7 +320,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         }));
       }
     } catch (error) {
-      console.error("Error:", error);
+      // console.error("Error:", error);
     }
   };
 
@@ -306,10 +329,15 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     setActiveSections((prevActiveSections) =>
       prevActiveSections.filter((activeIndex) => activeIndex !== index)
     );
+    setSelectedAccordionIndexes(
+      selectedAccordionIndexes.filter((item) => item !== index)
+    );
     // Optionally, you can also hide the card by updating your state or using any other mechanism.
   };
 
-  const handleAccordionChange = async (index, subSectionIndex = null) => {
+  const handleAccordionChange = async (index, subSectionIndex = null, e) => {
+    e.preventDefault();
+    console.log("Accordion change triggered");
     if (!activeSubSections[index]) {
       setActiveSubSections((prevActiveSubSections) => ({
         ...prevActiveSubSections,
@@ -379,6 +407,11 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
   }, [lastActiveCardIndex]);
 
   const handleCloseSubSectionCard = (subSectionIndex) => {
+    // Remove the index of the closed subsection from selectedAccordionIndexes
+    setSelectedAccordionIndexes((prevIndexes) =>
+      prevIndexes.filter((index) => index !== subSectionIndex)
+    );
+  
     setActiveSubSections((prevActiveSubSections) => {
       const updatedSubSections = { ...prevActiveSubSections };
       updatedSubSections[lastActiveCardIndex] = updatedSubSections[
@@ -387,7 +420,15 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       return updatedSubSections;
     });
   };
+  
 
+  const handleSubSectionAccordionChange = (index) => {
+    setActiveSubSections((prevActiveSubSections) => {
+      const updatedSubSections = { ...prevActiveSubSections };
+      delete updatedSubSections[index];
+      return updatedSubSections;
+    });
+  };
   // console.log("Last Ref", lastActiveCardRef);
   // console.log("Last Active", lastActiveCardIndex);
   // console.log("Sub Section Label Names:", subSectionLabels);
@@ -413,7 +454,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
               <Accordion
                 key={index}
                 expanded={activeSections.includes(index)}
-                onChange={() => handleAccordionChange(index)}
+                onChange={(e) => handleAccordionChange(index, null, e)}
                 style={{
                   backgroundColor: "#333",
                   color: "white",
@@ -436,9 +477,11 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                         {section.subSections.map((subSection, subIndex) => (
                           <Accordion
                             key={subIndex}
-                            onChange={() =>
-                              handleAccordionChange(index, subIndex)
-                            }
+                            onChange={(e) => {
+                              handleAccordionChange(index, subIndex, e);
+                              handleSubSectionAccordionChange(index); // Call function to remove active subSections
+                            }}
+                            expanded={activeSubSections[index]?.includes(subIndex)}
                           >
                             <AccordionSummary
                               expandIcon={<AddIcon />}
@@ -475,6 +518,20 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                                             expandIcon={<ExpandMoreIcon />}
                                             aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
                                             id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
+                                            onClick={() => {
+                                            if (!selectedAccordionIndexes.includes(subIndex)) {
+                                              setSelectedAccordionIndexes([
+                                                ...selectedAccordionIndexes,
+                                                subIndex,
+                                              ]);
+                                            } else {
+                                              setSelectedAccordionIndexes(
+                                                selectedAccordionIndexes.filter(
+                                                  (item) => item !== subIndex
+                                                )
+                                              );
+                                            }
+                                          }}
                                           >
                                             <Typography>
                                               {subSubSection.title}
@@ -499,7 +556,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         <div className="right-section">
           <div className="customer-id">
             <label htmlFor="customerId">Customer ID: </label>
-            <input type="text" id="customerId" name="customerId" />
+            <input type="text" id="customerId" name="customerId" value="C_1625644024615"/>
           </div>
 
           <div className="main-card">
@@ -717,7 +774,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                                   subSectionLabels[subSection.title] || []
                                 ).map((labelName, labelIndex) => ({
                                   label: `${subSection.title}.${labelName}`,
-                                  name: `field${labelIndex + 1}`,
+                                  name: `${subSection.title}.${labelName}`,
                                   type: "text",
                                 }))}
                                 index={subIndex}
@@ -748,6 +805,19 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
             >
               Submit Service Order
             </Button>
+
+            {submissionResponseModalVisible && (
+              <Modal
+                title="Submission Response"
+                visible={submissionResponseModalVisible}
+                onCancel={() => setSubmissionResponseModalVisible(false)}
+                footer={null}
+              >
+                <div className="submit-response">
+                  <pre>{JSON.stringify(submitResponse, null, 2)}</pre>
+                </div>
+              </Modal>
+            )}
           </div>
         </div>
       </div>
