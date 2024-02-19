@@ -114,6 +114,10 @@ export const ServiceCharacterstics = [
     displayAdditionalCard: true,
   },
   {
+    title: "CFS_MULTI_ROOM_WIFI_CUSTOMER",
+    displayAdditionalCard: true,
+  },
+  {
     title: "CFS_IP_ACCESS_MOBILE_BACKUP",
     displayAdditionalCard: true,
   },

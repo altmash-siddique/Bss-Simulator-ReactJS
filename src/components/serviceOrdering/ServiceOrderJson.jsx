@@ -15,12 +15,11 @@ const ServiceOrderJson = ({
   selectedVersion,
   localInitialValues,
 }) => {
+  console.log("displayedCards", displayedCards);
+  console.log("subsectionTitles", subsectionTitles);
 
   useEffect(() => {
-    // Generate a random requestId when the component mounts
     const requestId = generateRandomRequestId();
-    // console.log("Generated requestId:", requestId);
-    // Do something with the generated requestId, such as updating state or sending it to an API
   }, []);
 
   const generateRandomRequestId = () => {
@@ -33,23 +32,301 @@ const ServiceOrderJson = ({
   // console.log("input values", inputValues)
   const [jsonData, setJsonData] = useState(null);
 
+  const commonPlace = [
+    {
+      "@type": "GeaographicAddress",
+      role: "InstallationAddress",
+      id:
+        localInitialValues?.["connect_postcode"] +
+          "-" +
+          localInitialValues?.["connect_houseNumber"] ||
+        localInitialValues?.["install_id"] ||
+        inputValues.install_id ||
+        "",
+      street:
+        "Jan van Galenstraat" ||
+        localInitialValues?.["install_street"] ||
+        inputValues.install_street ||
+        "",
+      houseNumber:
+        localInitialValues?.["connect_houseNumber"] ||
+        localInitialValues?.["install_houseNumber"] ||
+        inputValues.install_houseNumber ||
+        "",
+      houseNumberExtension:
+        localInitialValues?.["install_houseNumberExtension"] ||
+        inputValues.install_houseNumberExtension ||
+        "",
+      postcode:
+        localInitialValues?.["connect_postcode"] ||
+        localInitialValues?.["install_postcode"] ||
+        inputValues.install_postcode ||
+        "",
+      city:
+        "Haarlem" ||
+        localInitialValues?.["install_city"] ||
+        inputValues.install_city ||
+        "",
+      country:
+        "Netherlands" ||
+        localInitialValues?.["install_country"] ||
+        inputValues.install_country ||
+        "",
+    },
+    {
+      "@type":
+        localInitialValues?.["connect_@type"] || inputValues.connect_type || "",
+      role: "ConnectionPoint",
+      id:
+        localInitialValues?.["connect_postcode"] +
+          "-" +
+          localInitialValues?.["connect_houseNumber"] +
+          ":" +
+          localInitialValues?.["connect_connectionPointIdentifier"] ||
+        localInitialValues?.["connect_id"] ||
+        inputValues.connect_id ||
+        "",
+      street:
+        "Jan van Galenstraat" ||
+        localInitialValues?.["connect_street"] ||
+        inputValues.connect_street ||
+        "",
+      houseNumber:
+        localInitialValues?.["connect_houseNumber"] ||
+        inputValues.connect_houseNumber ||
+        "",
+      houseNumberExtension:
+        localInitialValues?.["connect_houseNumberExtension"] ||
+        inputValues.connect_houseNumberExtension ||
+        "",
+      postcode:
+        localInitialValues?.["connect_postcode"] ||
+        inputValues.connect_postcode ||
+        "",
+      city:
+        "Haarlem" ||
+        localInitialValues?.["connect_city"] ||
+        inputValues.connect_city ||
+        "",
+      country:
+        "Netherlands" ||
+        localInitialValues?.["connect_country"] ||
+        inputValues.connect_country ||
+        "",
+      connectionPointIdentifier:
+        localInitialValues?.["connect_connectionPointIdentifier"] ||
+        inputValues.connect_connectionPointIdentifier ||
+        "",
+      nlType:
+        localInitialValues?.["connect_nlType"] ||
+        inputValues.connect_nlType ||
+        "",
+    },
+  ];
+
+  const commonRelatedParty = [
+    {
+      "@type":
+        "ContactParty" ||
+        localInitialValues?.["site_type"] ||
+        inputValues.site_type ||
+        "",
+      role:
+        "SiteContact" ||
+        localInitialValues?.["site_role"] ||
+        inputValues.site_role ||
+        "",
+      id:
+        "C_1625644024615" ||
+        localInitialValues?.["site_id"] ||
+        inputValues.site_id ||
+        "",
+      firstName:
+        "Harald" ||
+        localInitialValues?.["site_firstName"] ||
+        inputValues.site_firstName ||
+        "",
+      lastName:
+        "Van Kampen" ||
+        localInitialValues?.["site_lastName"] ||
+        inputValues.site_lastName ||
+        "",
+      phoneNumber:
+        "0611459399" ||
+        localInitialValues?.["site_phNum"] ||
+        inputValues.site_phNum ||
+        "",
+      alternatePhoneNumber:
+        "0201201201" ||
+        localInitialValues?.["site_altPhNum1"] ||
+        inputValues.site_altPhNum1 ||
+        "",
+      mobileNumber:
+        "0201201202" ||
+        localInitialValues?.["site_altPhNum2"] ||
+        inputValues.site_altPhNum2 ||
+        "",
+      email:
+        "harald.van.kampen@tele2.com" ||
+        localInitialValues?.["site_email"] ||
+        inputValues.site_email ||
+        "",
+    },
+  ];
+
   const generateServiceOrderData = () => {
+    let mainLineId = ""; // Variable to store the main ID for specific titles
+    let multiRoomLocationId = ""; // Variable to store the ID for CFS_MULTI_ROOM_WIFI_CUSTOMER
+    let cgwId = "";
     const requestId = generateRandomRequestId(); // Generate a random requestId
     const orderIds = displayedCards.map((_, index) => `${index + 1}`);
     const mainSectionIds = {};
-  
+
     const orderItems = displayedCards.map((cardData, index) => {
       const id = orderIds[index]; // Get the current order ID
       mainSectionIds[cardData.title] = id;
       title = cardData.title;
       const fields = cardData.fields;
-      // console.log("Fields", fields);
+      if (
+        cardData.title === "CFS_IP_ACCESS_WBA_FTTH" ||
+        cardData.title === "CFS_IP_ACCESS_WBA_VDSL" ||
+        cardData.title === "CFS_IP_ACCESS_GOP_FTTH"
+      ) {
+        mainLineId = id;
+        console.log("mainLineId", mainLineId);
+      }
+
+      if (cardData.title === "CFS_MULTI_ROOM_WIFI_CUSTOMER") {
+        multiRoomLocationId = id;
+        console.log("multiRoomLocationId", multiRoomLocationId);
+      }
+
+      if (cardData.title === "CFS_VOICE_GROUP") {
+        return {
+          id,
+          action: "Add",
+          service: {
+            serviceCharacteristic: [
+              {
+                name: "name",
+                valueType: "String",
+                value: "123 B.V. IT Support",
+              },
+              {
+                name: "serviceProviderId",
+                valueType: "CodeTable",
+                value: "HV01",
+              },
+            ],
+            serviceSpecification: {
+              name: cardData.title,
+            },
+          },
+        };
+      }
+      if (cardData.title === "CFS_MULTI_ROOM_WIFI_LOCATION") {
+        let orderItemRelationship = [];
+        console.log("first cgwid", cgwId);
+        console.log("first multiRoomLocationId", multiRoomLocationId);
+        if (cgwId) {
+          orderItemRelationship.push({
+            type: "ReliesOn",
+            id: cgwId,
+          });
+        }
+
+        if (multiRoomLocationId) {
+          orderItemRelationship.push({
+            type: "ReliesOn",
+            id: multiRoomLocationId,
+          });
+        }
+        return {
+          id,
+          action: "Add",
+          service: {
+            serviceCharacteristic: [
+              {
+                name: "installationType",
+                valueType: "String",
+                value: "Engineer",
+              },
+              {
+                name: "numberOfPods",
+                valueType: "Number",
+                value: "5",
+              },
+            ],
+            place: commonPlace,
+            serviceSpecification: {
+              name: cardData.title,
+            },
+          },
+          orderItemRelationship: orderItemRelationship,
+        };
+      }
+      if (cardData.title === "CFS_MULTI_ROOM_WIFI_CUSTOMER") {
+        return {
+          id,
+          action: "Add",
+          service: {
+            serviceCharacteristic: [
+              {
+                name: "name",
+                valueType: "String",
+                value: "UserName",
+              },
+            ],
+            serviceSpecification: {
+              name: cardData.title,
+            },
+          },
+        };
+      }
+      if (cardData.title === "CFS_IP_ACCESS_MOBILE_BACKUP") {
+        return {
+          id,
+          action: "Add",
+          service: {
+            serviceCharacteristic: [],
+            relatedParty: commonRelatedParty,
+            place: commonPlace,
+            serviceSpecification: {
+              name: cardData.title,
+            },
+          },
+          orderItemRelationship: [
+            {
+              type: "ReliesOn",
+              id: mainLineId,
+            },
+          ],
+        };
+      }
+      if (cardData.title === "CFS_PIN") {
+        return {
+          id,
+          action: "Add",
+          service: {
+            serviceCharacteristic: [],
+            serviceSpecification: {
+              name: cardData.title,
+            },
+          },
+          orderItemRelationship: [
+            {
+              type: "ReliesOn",
+              id: mainLineId,
+            },
+          ],
+        };
+      }
       const serviceCharacteristic = fields.reduce((acc, field) => {
         const labelName = field.label;
         const fullName = `${title}.${field.name}`;
-  
+
         let value = inputValues[fullName] || "";
-  
+
         // Set default values based on field names
         switch (field.name) {
           case "sla":
@@ -77,9 +354,9 @@ const ServiceOrderJson = ({
           default:
             break;
         }
-  
+
         let valueType = "String";
-  
+
         if (
           field.name === "deliveredNLType" ||
           field.name === "minimumBandwidthDown" ||
@@ -93,7 +370,7 @@ const ServiceOrderJson = ({
         } else if (field.name === "firstPossibleDate") {
           valueType = "Date";
         }
-  
+
         if (value !== "") {
           acc.push({
             name: labelName,
@@ -103,187 +380,35 @@ const ServiceOrderJson = ({
         }
         return acc;
       }, []);
-  
+
       return {
         id,
         action: "Add",
         service: {
           serviceCharacteristic,
-          relatedParty: [
-            {
-              "@type":
-                "ContactParty" ||
-                localInitialValues?.["site_type"] ||
-                inputValues.site_type ||
-                "",
-              role:
-                "SiteContact" ||
-                localInitialValues?.["site_role"] ||
-                inputValues.site_role ||
-                "",
-              id:
-                "C_1625644024615" ||
-                localInitialValues?.["site_id"] ||
-                inputValues.site_id ||
-                "",
-              firstName:
-                "Harald" ||
-                localInitialValues?.["site_firstName"] ||
-                inputValues.site_firstName ||
-                "",
-              lastName:
-                "Van Kampen" ||
-                localInitialValues?.["site_lastName"] ||
-                inputValues.site_lastName ||
-                "",
-              phoneNumber:
-                "0611459399" ||
-                localInitialValues?.["site_phNum"] ||
-                inputValues.site_phNum ||
-                "",
-              alternatePhoneNumber:
-                "0201201201" ||
-                localInitialValues?.["site_altPhNum1"] ||
-                inputValues.site_altPhNum1 ||
-                "",
-              mobileNumber:
-                "0201201202" ||
-                localInitialValues?.["site_altPhNum2"] ||
-                inputValues.site_altPhNum2 ||
-                "",
-              email:
-                "harald.van.kampen@tele2.com" ||
-                localInitialValues?.["site_email"] ||
-                inputValues.site_email ||
-                "",
-            },
-          ],
-          place: [
-            {
-              "@type":
-                "GeaographicAddress" ||
-                localInitialValues?.["install_type"] ||
-                inputValues.install_type ||
-                "",
-              role:
-                "InstallationAddress" ||
-                localInitialValues?.["install_role"] ||
-                inputValues.install_role ||
-                "",
-              id:
-                localInitialValues?.["connect_postcode"] +
-                "-" +
-                localInitialValues?.["connect_houseNumber"] ||
-                localInitialValues?.["install_id"] ||
-                inputValues.install_id ||
-                "",
-              street:
-                "Jan van Galenstraat" ||
-                localInitialValues?.["install_street"] ||
-                inputValues.install_street ||
-                "",
-              houseNumber:
-                localInitialValues?.["connect_houseNumber"] ||
-                localInitialValues?.["install_houseNumber"] ||
-                inputValues.install_houseNumber ||
-                "",
-              houseNumberExtension:
-                localInitialValues?.["install_houseNumberExtension"] ||
-                inputValues.install_houseNumberExtension ||
-                "",
-              postcode:
-                localInitialValues?.["connect_postcode"] ||
-                localInitialValues?.["install_postcode"] ||
-                inputValues.install_postcode ||
-                "",
-              city:
-                "Haarlem" ||
-                localInitialValues?.["install_city"] ||
-                inputValues.install_city ||
-                "",
-              country:
-                "Netherlands" ||
-                localInitialValues?.["install_country"] ||
-                inputValues.install_country ||
-                "",
-            },
-            {
-              "@type":
-                localInitialValues?.["connect_@type"] ||
-                inputValues.connect_type ||
-                "",
-              role:
-                "ConnectionPoint" ||
-                localInitialValues?.["connect_role"] ||
-                inputValues.connect_role ||
-                "",
-              id:
-                localInitialValues?.["connect_postcode"] +
-                "-" +
-                localInitialValues?.["connect_houseNumber"] +
-                ":" +
-                localInitialValues?.["connect_connectionPointIdentifier"] ||
-                localInitialValues?.["connect_id"] ||
-                inputValues.connect_id ||
-                "",
-              street:
-                "Jan van Galenstraat" ||
-                localInitialValues?.["connect_street"] ||
-                inputValues.connect_street ||
-                "",
-              houseNumber:
-                localInitialValues?.["connect_houseNumber"] ||
-                inputValues.connect_houseNumber ||
-                "",
-              houseNumberExtension:
-                localInitialValues?.["connect_houseNumberExtension"] ||
-                inputValues.connect_houseNumberExtension ||
-                "",
-              postcode:
-                localInitialValues?.["connect_postcode"] ||
-                inputValues.connect_postcode ||
-                "",
-              city:
-                "Haarlem" ||
-                localInitialValues?.["connect_city"] ||
-                inputValues.connect_city ||
-                "",
-              country:
-                "Netherlands" ||
-                localInitialValues?.["connect_country"] ||
-                inputValues.connect_country ||
-                "",
-              connectionPointIdentifier:
-                localInitialValues?.["connect_connectionPointIdentifier"] ||
-                inputValues.connect_connectionPointIdentifier ||
-                "",
-              nlType:
-                localInitialValues?.["connect_nlType"] ||
-                inputValues.connect_nlType ||
-                "",
-            },
-          ],
+          relatedParty: commonRelatedParty,
+          place: commonPlace,
           serviceSpecification: {
             name: title,
           },
         },
       };
     });
-  
+
     const selectedSubsections = selectedAccordionIndexes.map(
       (index) => subsectionTitles[index]
     );
 
-    console.log("selectedAccordionIndexes", selectedAccordionIndexes)
-  
+    // console.log("selectedAccordionIndexes", selectedAccordionIndexes)
+
     let orderKey = "orderItem";
     let orderItemRelationshipKey = "orderItemRelationship";
-  
+
     if (selectedVersion === "v4") {
       orderKey = "serviceOrderItem";
       orderItemRelationshipKey = "serviceOrderItemRelationship";
     }
-  
+
     const subServiceOrderItems = selectedSubsections.map((subtitle, index) => {
       const subtitleFields = displayedCards
         .flatMap((card) =>
@@ -291,24 +416,31 @@ const ServiceOrderJson = ({
         )
         .filter((field) => field.name.split(".")[0] === subtitle);
       // console.log("subtitlefields", subtitleFields);
-      console.log("subtitle", subtitle)
-      console.log("selectedSubsections", selectedSubsections)
-  
+      // console.log("subtitle", subtitle)
+      // console.log("selectedSubsections", selectedSubsections)
+
       const subServiceCharacteristic = subtitleFields.map((field) => {
         const fullName = `${field.name}`;
         const value = inputValues[fullName] || "";
         let valueType = "String";
         const labelParts = field.label.split(".");
-        const displayName =
-          labelParts.length > 1 ? labelParts[1] : field.label;
-  
+        const displayName = labelParts.length > 1 ? labelParts[1] : field.label;
+
         return {
           name: displayName,
           valueType: valueType,
           value: value,
         };
       });
-  
+
+      selectedSubsections.forEach((subtitle) => {
+        if (subtitle === "CFS_IP_ACCESS_CGW") {
+          // Store the ID for CFS_IP_ACCESS_CGW
+          cgwId = `${index + orderItems.length + 1}`;
+          console.log("cgwid", cgwId);
+        }
+      });
+
       return {
         id: `${index + orderItems.length + 1}`,
         action: "Add",
@@ -321,12 +453,12 @@ const ServiceOrderJson = ({
         [orderItemRelationshipKey]: [
           {
             type: "ReliesOn",
-            id: mainSectionIds[title],
+            id: mainLineId,
           },
         ],
       };
     });
-  
+
     const updatedServiceOrderData = {
       requestId: requestId, // Set the randomly generated requestId
       externalId: requestId, // Set the same requestId as externalId
@@ -346,10 +478,10 @@ const ServiceOrderJson = ({
       ],
       [orderKey]: [...orderItems, ...subServiceOrderItems],
     };
-  
+
     return updatedServiceOrderData;
   };
-  
+
   const [showJson, setShowJson] = useState(true);
 
   const handleShowJson = () => {

@@ -44,7 +44,8 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     setModalVisible(true);
   };
 
-  const [submissionResponseModalVisible, setSubmissionResponseModalVisible] = useState(false);
+  const [submissionResponseModalVisible, setSubmissionResponseModalVisible] =
+    useState(false);
 
   useEffect(() => {
     if (feasibilityPlaceData && feasibilityPlaceData.installation) {
@@ -140,14 +141,13 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
               type: "text",
             })) || [],
         };
-  
+
         const nestedCardCount = selectedAccordionIndexes.reduce(
           (nestedAcc, selectedIndex) => {
             if (
               section &&
               Array.isArray(section.subSections) &&
               section.subSections.length > selectedIndex
-              
             ) {
               // console.log("if executed")
               const subSection = section.subSections[selectedIndex];
@@ -156,12 +156,12 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
               if (subSection) {
                 const subSectionTitle = subSection.title;
                 nestedAcc += subSectionLabels[subSectionTitle]?.length || 0;
-              
+
                 // Include fields data for sub-sections
                 subSectionLabels[subSectionTitle]?.forEach((fieldLabel) => {
                   additionalCardData.fields.push({
                     label: subSectionTitle + "." + fieldLabel,
-                    name: subSectionTitle + "." +  fieldLabel,
+                    name: subSectionTitle + "." + fieldLabel,
                     type: "text",
                   });
                 });
@@ -171,15 +171,14 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
           },
           0
         );
-  
+
         acc.push({ ...additionalCardData, nestedCardCount });
       }
       return acc;
     }, []);
-  
+
     return { displayedCards, totalDisplayedCount: displayedCards.length };
   };
-  
 
   // console.log("Selected Accordion", selectedAccordionIndexes);
 
@@ -411,7 +410,7 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
     setSelectedAccordionIndexes((prevIndexes) =>
       prevIndexes.filter((index) => index !== subSectionIndex)
     );
-  
+
     setActiveSubSections((prevActiveSubSections) => {
       const updatedSubSections = { ...prevActiveSubSections };
       updatedSubSections[lastActiveCardIndex] = updatedSubSections[
@@ -420,7 +419,6 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
       return updatedSubSections;
     });
   };
-  
 
   const handleSubSectionAccordionChange = (index) => {
     setActiveSubSections((prevActiveSubSections) => {
@@ -481,7 +479,9 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                               handleAccordionChange(index, subIndex, e);
                               handleSubSectionAccordionChange(index); // Call function to remove active subSections
                             }}
-                            expanded={activeSubSections[index]?.includes(subIndex)}
+                            expanded={activeSubSections[index]?.includes(
+                              subIndex
+                            )}
                           >
                             <AccordionSummary
                               expandIcon={<AddIcon />}
@@ -519,19 +519,23 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                                             aria-controls={`panel${index}-${subIndex}-${subSubIndex}-content`}
                                             id={`panel${index}-${subSubIndex}-${subSubIndex}-header`}
                                             onClick={() => {
-                                            if (!selectedAccordionIndexes.includes(subIndex)) {
-                                              setSelectedAccordionIndexes([
-                                                ...selectedAccordionIndexes,
-                                                subIndex,
-                                              ]);
-                                            } else {
-                                              setSelectedAccordionIndexes(
-                                                selectedAccordionIndexes.filter(
-                                                  (item) => item !== subIndex
+                                              if (
+                                                !selectedAccordionIndexes.includes(
+                                                  subIndex
                                                 )
-                                              );
-                                            }
-                                          }}
+                                              ) {
+                                                setSelectedAccordionIndexes([
+                                                  ...selectedAccordionIndexes,
+                                                  subIndex,
+                                                ]);
+                                              } else {
+                                                setSelectedAccordionIndexes(
+                                                  selectedAccordionIndexes.filter(
+                                                    (item) => item !== subIndex
+                                                  )
+                                                );
+                                              }
+                                            }}
                                           >
                                             <Typography>
                                               {subSubSection.title}
@@ -556,7 +560,12 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
         <div className="right-section">
           <div className="customer-id">
             <label htmlFor="customerId">Customer ID: </label>
-            <input type="text" id="customerId" name="customerId" value="C_1625644024615"/>
+            <input
+              type="text"
+              id="customerId"
+              name="customerId"
+              value="C_1625644024615"
+            />
           </div>
 
           <div className="main-card">
@@ -814,7 +823,8 @@ const ServiceOrdering = ({ data, selectedEnvironment }) => {
                 footer={null}
               >
                 <div className="submit-response">
-                  <pre>{JSON.stringify(submitResponse, null, 2)}</pre>
+                  <h3>Order Id</h3>
+                  <pre>{JSON.stringify(submitResponse.id, null, 2)}</pre>
                 </div>
               </Modal>
             )}
