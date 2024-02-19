@@ -59,27 +59,33 @@ const PostProcessorDel = ({ selectedEnvironment, srApiRes }) => {
       tenDaysAhead.setDate(currentDate.getDate() + 10);
       jsonStruc.requestedCompletionDate = tenDaysAhead;
       //orderItems
-      console.log(srApiRes);
-      for (let x = 0; x < srApiRes.serviceRelationships.length + 1; x++) {
-        if (x === 0) {
-          jsonStruc.orderItem.push({
-            id: x + 1,
-            action: "Delete",
-            service: {
-              id: srApiRes.id,
-            },
-          });
-        } else {
-          jsonStruc.orderItem.push({
-            id: x + 1,
-            action: "Delete",
-            service: {
-              id: srApiRes.serviceRelationships[x - 1].service.id,
-            },
-          });
+
+      for (let x = 0; x < checkedKeys.length; x++) {
+        console.log(checkedKeys);
+        for (let y = 0; y < srApiRes.serviceRelationships.length; y++) {
+          if (checkedKeys[x] === srApiRes.name) {
+            jsonStruc.orderItem.push({
+              id: x,
+              action: "Delete",
+              service: {
+                id: srApiRes.id,
+              },
+            });
+            break;
+          } else if (
+            srApiRes.serviceRelationships[y].service.name === checkedKeys[x]
+          ) {
+            console.log(srApiRes.serviceRelationships[y].service.name);
+            jsonStruc.orderItem.push({
+              id: x,
+              action: "Delete",
+              service: {
+                id: srApiRes.serviceRelationships[y].service.id,
+              },
+            });
+          }
         }
       }
-      console.log(jsonStruc);
       setJsonData({ jsonStruc });
       setShowJson(true);
       setJsonDiv(true);
@@ -111,19 +117,23 @@ const PostProcessorDel = ({ selectedEnvironment, srApiRes }) => {
   };
 
   useEffect(() => {
+    setShowJson(false);
+    setJsonDiv(false);
+    setCheckedKeys([]);
     if (srApiRes.serviceCharacteristics) {
       let serviceTreeChars = [];
       for (let x = 0; x < srApiRes.serviceRelationships.length; x++) {
-        console.log(srApiRes.serviceRelationships[x].service);
-        serviceTreeChars.push({
-          title:
-            srApiRes.serviceRelationships[x].service.name +
-            " - " +
-            srApiRes.serviceRelationships[x].service.id,
-          key: srApiRes.serviceRelationships[x].service.name,
-          isLeaf: true,
-          checkable: false,
-        });
+        if (srApiRes.serviceRelationships[x].type === "ParentOf") {
+          serviceTreeChars.push({
+            title:
+              srApiRes.serviceRelationships[x].service.name +
+              " - " +
+              srApiRes.serviceRelationships[x].service.id,
+            key: srApiRes.serviceRelationships[x].service.name,
+            isLeaf: true,
+            checkable: true,
+          });
+        }
       }
       setTreeData([
         {
@@ -137,20 +147,7 @@ const PostProcessorDel = ({ selectedEnvironment, srApiRes }) => {
   return (
     <div>
       <Card bordered={false} className="async-inner-card">
-        <div
-          style={{
-            display:
-              srApiRes.name === "CFS_IP_ACCESS_GOP_FTTH"
-                ? "block"
-                : srApiRes.name === "CFS_IP_ACCESS_WBA_FTTH"
-                ? "block"
-                : srApiRes.name === "CFS_IP_ACCESS_WBA_VDSL"
-                ? "block"
-                : srApiRes.name === "CFS_VOICE_GROUP"
-                ? "block"
-                : "none",
-          }}
-        >
+        <div>
           <Row className="alignItems-Center">
             <Col className="marginLeft-3" span={16}>
               <Tree

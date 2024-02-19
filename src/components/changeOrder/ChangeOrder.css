@@ -76,7 +76,43 @@
   width: 150px;
   margin-top: 30px;
 }
+.addTIButton {
+  font-size: 2vw;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  height: auto !important;
+  border: none;
+}
+.removeTiButton {
+  font-size: 1vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  height: fit-content;
+  border: none;
+  padding: none !important;
+  width: fit-content;
+  border-radius: 30px;
+}
+.removeTiButton:hover {
+  cursor: pointer;
+  /* box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
+}
 
+.tiCard {
+  justify-content: end !important;
+}
+.anticon-plus-circle {
+  margin-inline-start: 0 !important;
+}
+.w-100 {
+  width: 100%;
+}
+.j-center {
+  justify-content: center;
+}
 .serviceid-label {
   margin-top: 8px;
 }
