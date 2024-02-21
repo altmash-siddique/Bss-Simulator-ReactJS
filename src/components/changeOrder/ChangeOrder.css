@@ -4,14 +4,43 @@
   color: white;
   justify-content: center;
   margin: auto;
-  height: 120vh;
+  min-height: 120vh;
 }
-
+.marginTop {
+  margin-top: 30px;
+}
+.width-80 {
+  width: 80%;
+}
+.paddingLeft-2 {
+  padding-left: 2vw;
+}
+.alignItems-Center {
+  align-items: center;
+}
+.marginLeft-3 {
+  margin-left: 3vw;
+}
+.treeData {
+  font-weight: 500;
+  font-size: 15px;
+}
+.prepare-button-change {
+  color: #fff;
+  background-color: black;
+  border: 1px solid #000;
+  border-radius: 30px;
+  /* width: 100%; */
+  height: 40px !important;
+}
+.border-top {
+  border-top: 1px solid rgba(0, 0, 0, 0.354) !important;
+}
 .centered-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  
+  /* justify-content: center; */
 }
 
 .subheader-label {
@@ -45,15 +74,166 @@
   color: white;
   font-weight: bold;
   width: 150px;
-  margin-top: 30px
+  margin-top: 30px;
+}
+.addTIButton {
+  font-size: 2vw;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  height: auto !important;
+  border: none;
+}
+.removeTiButton {
+  font-size: 1vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  height: fit-content;
+  border: none;
+  padding: none !important;
+  width: fit-content;
+  border-radius: 30px;
+}
+.removeTiButton:hover {
+  cursor: pointer;
+  /* box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; */
 }
 
+.tiCard {
+  justify-content: end !important;
+}
+.anticon-plus-circle {
+  margin-inline-start: 0 !important;
+}
+.w-100 {
+  width: 100%;
+}
+.j-center {
+  justify-content: center;
+}
 .serviceid-label {
   margin-top: 8px;
 }
+.background-container {
+  background-image: linear-gradient(to top left, #3dbfb5, #2c72ff, #f9a068);
+  min-height: 150vh;
+}
 
+.custom-card {
+  width: 50%;
+  margin: auto;
+  background: white;
+}
+
+.custom-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Your CSS file */
+.orderid-custom-div {
+  display: grid;
+  place-items: center;
+}
+
+.orderid-row {
+  margin-top: 20px;
+}
+
+.orderid-label {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+}
+
+.orderid-textbox {
+  margin-top: 15px;
+}
+
+.container-async {
+  display: grid;
+  grid-column-gap: 0px;
+  grid-row-gap: 50px;
+}
+
+.custom-row {
+  width: 170vw;
+  margin-left: 100px;
+  margin-bottom: 2%;
+}
+
+.custom-col-cha {
+  margin-top: 80px;
+  width: 50vw;
+}
+
+.bss-async-triggers-button {
+  color: #ffffff;
+  background-color: #000000;
+  border-radius: 30px;
+  margin-right: 30px;
+  border-color: #000;
+  width: 180px;
+  height: 45px;
+}
+
+.fc-async-triggers-button {
+  color: #ffffff;
+  background-color: #000000;
+  border-radius: 30px;
+  margin-right: 30px;
+  border-color: #000;
+  width: 180px;
+  height: 45px;
+}
+
+.col-item {
+  margin-right: 30px;
+}
+
+.appointment-date {
+  margin-top: 10px;
+  margin-left: 5px;
+}
+
+.async-inner-card {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 2%;
+  margin-bottom: 1% !important;
+  padding: 0px !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  border-radius: 0.25rem !important;
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.ordertype-dropdown {
+  margin-top: 15px;
+}
+
+.async-triggers-button {
+  color: #ffffff;
+  background-color: #000000;
+  border-radius: 30px;
+  border-color: #000;
+  width: 180px;
+  height: 45px;
+}
+
+.async-date-button-row {
+  margin-top: 20px;
+}
+
+.async-col {
+  margin-right: 30px;
+}
+
+.datefield {
+  margin-top: 5px;
+}
 @media (max-width: 767px) {
-
   .centered-container,
   .card-label,
   .subheader-label,
