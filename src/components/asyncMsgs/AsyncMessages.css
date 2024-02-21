@@ -74,6 +74,14 @@
 
 }
 
+.fc-async-triggers-button.success {
+    background-color: green; /* Set background color for success */
+  }
+  
+  .fc-async-triggers-button.error {
+    background-color: red; /* Set background color for error */
+  }
+
 .col-item {
     margin-right: 30px;
 }
@@ -120,3 +128,38 @@
     margin-top: 5px;
 
 }
+
+.check-circle {
+    align-items: center;
+    margin-top: 5px;
+}
+
+.error-notification .ant-notification-notice {
+    background-color: #ffcccc; /* Red background color */
+    color: #ffffff; /* Red text color */
+  }
+
+ 
+  
+.fa-exclamation-circle {
+    position: absolute;
+    top: 51%;
+    left: 10%;
+    background-color: red;
+    transform: translate(-50%, -50%);
+    color: white;
+    border-radius: 50%;
+  }
+
+  
+  
+  .fa-check-circle {
+    position: absolute;
+    top: 51%;
+    left: 10%;
+    background-color: green;
+    transform: translate(-50%, -50%);
+    color: white;
+    border-radius: 50%;
+  }
+  
