@@ -21,14 +21,6 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
   const [loadingVerify, setLoadingVerify] = useState(false);
   const [changeOrderRes, setChangeOrderRes] = useState({});
   const [mainDivDisp, setMainDivDisp] = useState();
-  // const [ipEncapsulationType, setIpEncapsulationType] = useState([]);
-  // const [qualityClass, setQualityClass] = useState([]);
-  // const [endUserAccessVlan, setEndUserACcessVlan] = useState([]);
-  // const [region, setRegion] = useState([]);
-  // const [bandwidthUp, setBandwidthUp] = useState([]);
-  // const [bandwidthDown, setBandwidthDown] = useState([]);
-  // const [interconnectVlan, setInterconnectVlan] = useState([]);
-
   const [transportInstance, setTransportInstance] = useState([]);
   const apiService = new ApiService(selectedEnvironment);
 
@@ -313,8 +305,6 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
         qualityClass: "Standard",
         endUserAccessVlan: "50",
         region: "national",
-        bandwidthUp: "500000",
-        bandwidthDown: "500000",
         interconnectVlan: "3501",
       };
 
@@ -348,16 +338,6 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
   const handleRegionChange = (value, index) => {
     let instances = [...transportInstance];
     instances[index].region = value;
-    setTransportInstance(instances);
-  };
-  const handleBandwidthDownChange = (e) => {
-    let instances = [...transportInstance];
-    instances[e.target.dataset.index].bandwidthDown = e.target.value;
-    setTransportInstance(instances);
-  };
-  const handleBandwidthUpChange = (e) => {
-    let instances = [...transportInstance];
-    instances[e.target.dataset.index].bandwidthUp = e.target.value;
     setTransportInstance(instances);
   };
   const handleInterConnectVlanChange = (e) => {
@@ -673,34 +653,6 @@ const PostProcessor = ({ selectedEnvironment, srApiRes }) => {
                             }}
                             options={regionOptions}
                           ></Select>
-                        </Col>
-
-                        <Col className="marginLeft-3" span={8}>
-                          <h4>bandwidthUp</h4>
-                        </Col>
-                        <Col span={8}>
-                          <Input
-                            data-index={index}
-                            type="text"
-                            value={data.bandwidthUp}
-                            onChange={handleBandwidthUpChange}
-                            // className="service-textbox"
-                            className="width-80"
-                          ></Input>
-                        </Col>
-
-                        <Col className="marginLeft-3" span={8}>
-                          <h4>bandwidthDown</h4>
-                        </Col>
-                        <Col span={8}>
-                          <Input
-                            data-index={index}
-                            type="text"
-                            value={data.bandwidthDown}
-                            onChange={handleBandwidthDownChange}
-                            // className="service-textbox"
-                            className="width-80"
-                          ></Input>
                         </Col>
 
                         <Col className="marginLeft-3" span={8}>
