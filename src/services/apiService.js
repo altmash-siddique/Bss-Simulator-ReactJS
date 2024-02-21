@@ -25,11 +25,9 @@ class ApiService {
     }
     // Add URL parameters
     if (params) {
-      Object.keys(params).forEach((key) => {
-        // Appending the query parameter directly to the URL
-        url += `?${key}=${params[key]}`;
-      });
-    }
+      const queryString = Object.keys(params).map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`).join('&');
+      url += `?${queryString}`;
+  }
 
     const requestOptions = {
       method: method.toUpperCase(), // Ensure it's in uppercase
@@ -54,7 +52,14 @@ class ApiService {
         throw new Error(`Failed to fetch data: ${response.statusText}`);
       }
 
-      return await response.json();
+      if(response.status === 200){
+        return await response.json();
+      }
+      else {
+        return await response;
+      }
+
+     
     } catch (error) {
       console.error("Error making API request:", error);
       throw error;
